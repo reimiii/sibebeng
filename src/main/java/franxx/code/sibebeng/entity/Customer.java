@@ -3,6 +3,9 @@ package franxx.code.sibebeng.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity @Data @Table(name = "customers")
 public class Customer {
 
@@ -17,4 +20,7 @@ public class Customer {
 
   @Column(unique = true)
   private String email;
+
+  @OneToMany(mappedBy = "customer")
+  private List<Vehicle> vehicles = new ArrayList<>();
 }
