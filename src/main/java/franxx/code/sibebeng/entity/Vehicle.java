@@ -15,6 +15,7 @@ public class Vehicle {
   @Column(name = "license_plate")
   private String licensePlate;
   private String model;
+  private String brand;
 
   @Column(length = 4)
   private String year;
