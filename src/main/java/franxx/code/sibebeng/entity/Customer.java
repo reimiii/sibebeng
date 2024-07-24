@@ -21,6 +21,6 @@ public class Customer {
   @Column(unique = true)
   private String email;
 
-  @OneToMany(mappedBy = "customer")
+  @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Vehicle> vehicles = new ArrayList<>();
 }

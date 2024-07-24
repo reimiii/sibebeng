@@ -2,6 +2,8 @@ package franxx.code.sibebeng.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class Vehicle {
   private String color;
 
   @ManyToOne @JoinColumn(name = "customer_id", referencedColumnName = "id")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Customer customer;
 
   @OneToMany(mappedBy = "vehicle")
