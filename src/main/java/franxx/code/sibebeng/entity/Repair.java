@@ -1,6 +1,8 @@
 package franxx.code.sibebeng.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,7 +15,8 @@ public class Repair {
   @Id @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
-  @Column(name = "entry_date")
+  @NotNull
+  @Column(name = "entry_date", nullable = false)
   private LocalDateTime entryDate;
 
   @Column(name = "exit_date")

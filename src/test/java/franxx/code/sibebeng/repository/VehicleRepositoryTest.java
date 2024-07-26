@@ -113,4 +113,5 @@ class VehicleRepositoryTest {
 
     assertEquals(0, vehicleRepository.count());
   }
+
 }

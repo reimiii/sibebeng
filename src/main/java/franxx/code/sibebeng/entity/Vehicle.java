@@ -24,7 +24,6 @@ public class Vehicle {
   private String color;
 
   @ManyToOne @JoinColumn(name = "customer_id", referencedColumnName = "id")
-  @OnDelete(action = OnDeleteAction.CASCADE)
   private Customer customer;
 
   @OneToMany(mappedBy = "vehicle")

@@ -116,6 +116,7 @@ class CustomerRepositoryTest {
   void deleteCustomerHaveVehicle() {
     assertEquals(1, customerRepository.count());
     assertEquals(1, vehicleRepository.count());
+    vehicleRepository.deleteAll();
     customerRepository.delete(customerR);
 
     assertEquals(0, customerRepository.count());
