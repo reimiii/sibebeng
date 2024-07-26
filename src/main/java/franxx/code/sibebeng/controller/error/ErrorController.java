@@ -17,12 +17,19 @@ import java.util.stream.Collectors;
 public class ErrorController {
 
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<WebResponse<String>> constraintViolation(ConstraintViolationException violationException) {
+  public ResponseEntity<WebResponse<List<String>>> constraintViolation(ConstraintViolationException violationException) {
+
     List<String> errors = violationException.getConstraintViolations().stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toList());
+
+    WebResponse<List<String>> response = WebResponse.<List<String>>builder()
+        .message("validation errors")
+        .errors(errors)
+        .build();
+
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(WebResponse.<String>builder().message("validation errors").errors(errors).build());
+        .body(response);
   }
 
   @ExceptionHandler(ResponseStatusException.class)
