@@ -1,4 +1,4 @@
-package franxx.code.sibebeng.controller.error;
+package franxx.code.sibebeng.exception;
 
 import franxx.code.sibebeng.dto.WebResponse;
 import jakarta.validation.ConstraintViolation;

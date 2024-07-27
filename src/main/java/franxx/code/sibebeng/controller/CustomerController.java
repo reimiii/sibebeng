@@ -1,8 +1,8 @@
 package franxx.code.sibebeng.controller;
 
 import franxx.code.sibebeng.dto.WebResponse;
-import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequestDto;
-import franxx.code.sibebeng.dto.customer.response.CustomerResponseDto;
+import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +23,12 @@ public class CustomerController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<WebResponse<CustomerResponseDto>> create(
-      @RequestBody CreateCustomerRequestDto request
+  public ResponseEntity<WebResponse<CustomerResponse>> create(
+      @RequestBody CreateCustomerRequest request
   ) {
-    CustomerResponseDto customer = customerService.createCustomer(request);
+    CustomerResponse customer = customerService.createCustomer(request);
 
-    WebResponse<CustomerResponseDto> response = WebResponse.<CustomerResponseDto>builder()
+    WebResponse<CustomerResponse> response = WebResponse.<CustomerResponse>builder()
         .message("customer created successfully")
         .data(customer)
         .build();

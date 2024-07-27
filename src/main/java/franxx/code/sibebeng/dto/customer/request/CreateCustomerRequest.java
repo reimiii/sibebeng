@@ -10,18 +10,18 @@ import lombok.NoArgsConstructor;
 
 @Data @Builder @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerRequestDto {
+public class CreateCustomerRequest {
   @NotBlank(message = "Name is required")
   private String name;
 
-  @NotBlank(message = "Address is required")
-  private String address;
+  @NotBlank(message = "Email is required")
+  @Email(message = "Email should be valid")
+  private String email;
 
   @NotBlank(message = "Phone number is required")
   @Size(min = 10, max = 15, message = "Phone number must be between 10 and 15 characters")
   private String phoneNumber;
 
-  @NotBlank(message = "Email is required")
-  @Email(message = "Email should be valid")
-  private String email;
+  @NotBlank(message = "Address is required")
+  private String address;
 }

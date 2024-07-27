@@ -1,7 +1,7 @@
 package franxx.code.sibebeng.service;
 
-import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequestDto;
-import franxx.code.sibebeng.dto.customer.response.CustomerResponseDto;
+import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
@@ -19,7 +19,7 @@ public class CustomerService {
 
   // todo add some response
 
-  public CustomerResponseDto createCustomer(CreateCustomerRequestDto request) {
+  public CustomerResponse createCustomer(CreateCustomerRequest request) {
 
     validationService.validateRequest(request);
 
@@ -31,7 +31,7 @@ public class CustomerService {
 
     customerRepository.save(customer);
 
-    return CustomerResponseDto.builder()
+    return CustomerResponse.builder()
         .id(customer.getId())
         .name(customer.getName())
         .email(customer.getEmail())
