@@ -21,25 +21,18 @@
         "address": "123 Main St",
         "phoneNumber": "555-1234",
         "email": "john.doe@example.com"
-    },
-    "vehicle": {
-        "licensePlate": "AB123CD",
-        "brand": "Toyota",
-        "model": "Camry",
-        "year": 2018,
-        "color": "Blue"
     }
 }
 ```
 
 - **Responses**:
-    - **201 Created**: Jika pelanggan dan kendaraan berhasil ditambahkan.
+    - **201 Created**: Jika pelanggan.
         - **Content-Type**: `application/json`
         - **Body**:
 
       ```json
       {
-          "message": "Customer and Vehicle added successfully"
+          "message": "Customer added successfully"
       }
       ```
     - **400 Bad Request**: Jika ada kesalahan pada data yang dikirim.
