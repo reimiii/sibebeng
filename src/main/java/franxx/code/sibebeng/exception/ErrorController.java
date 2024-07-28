@@ -33,12 +33,12 @@ public class ErrorController {
   }
 
   @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity<WebResponse<String>> apiException(ResponseStatusException exception) {
+  public ResponseEntity<WebResponse<Void>> apiException(ResponseStatusException exception) {
     List<String> errors = new ArrayList<>();
     if (exception.getReason() != null) {
       errors.add(exception.getReason());
     }
     return ResponseEntity.status(exception.getStatusCode())
-        .body(WebResponse.<String>builder().errors(errors).build());
+        .body(WebResponse.<Void>builder().message(exception.getMessage()).errors(errors).build());
   }
 }

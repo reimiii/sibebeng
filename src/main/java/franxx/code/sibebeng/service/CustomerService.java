@@ -6,8 +6,10 @@ import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service @Transactional
 @RequiredArgsConstructor
@@ -17,7 +19,15 @@ public class CustomerService {
 
   private final ValidationService validationService;
 
-  // todo add some response
+  private static CustomerResponse toCustomerResponse(Customer customer) {
+    return CustomerResponse.builder()
+        .id(customer.getId())
+        .name(customer.getName())
+        .email(customer.getEmail())
+        .phoneNumber(customer.getPhoneNumber())
+        .address(customer.getAddress())
+        .build();
+  }
 
   public CustomerResponse createCustomer(CreateCustomerRequest request) {
 
@@ -31,12 +41,14 @@ public class CustomerService {
 
     customerRepository.save(customer);
 
-    return CustomerResponse.builder()
-        .id(customer.getId())
-        .name(customer.getName())
-        .email(customer.getEmail())
-        .phoneNumber(customer.getPhoneNumber())
-        .address(customer.getAddress())
-        .build();
+    return toCustomerResponse(customer);
+  }
+
+  @Transactional(readOnly = true)
+  public CustomerResponse getCustomer(String id) {
+    Customer customer = customerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "customer not found"));
+
+    return toCustomerResponse(customer);
   }
 }
