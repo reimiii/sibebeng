@@ -2,6 +2,7 @@ package franxx.code.sibebeng.controller;
 
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +42,36 @@ public class CustomerController {
       produces = APPLICATION_JSON_VALUE
   )
   public ResponseEntity<?> get(
-      @PathVariable(name = "customerId") String customerId
+      @PathVariable(name = "customerId") String id
   ) {
 
-    var customer = customerService.getCustomer(customerId);
+    var customer = customerService.getCustomer(id);
 
     WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
         .message("one customer found")
         .data(customer)
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(response);
+  }
+
+  @PutMapping(
+      path = "/{customerId}",
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> update(
+      @RequestBody UpdateCustomerRequest request,
+      @PathVariable(name = "customerId") String id
+  ) {
+
+    request.setId(id);
+    var customerResponse = customerService.updateCustomer(request);
+    var response = WebResponse.<CustomerResponse, Void>builder()
+        .message("customer updated successfully")
+        .data(customerResponse)
         .build();
 
     return ResponseEntity
