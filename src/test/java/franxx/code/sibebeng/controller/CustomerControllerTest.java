@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,21 @@ class CustomerControllerTest {
   @Autowired
   private CustomerRepository customerRepository;
 
+  private Customer customer;
+
   @BeforeEach
   void setUp() {
     customerRepository.deleteAll();
 
     objectMapper = objectMapper
         .configure(SerializationFeature.INDENT_OUTPUT, true);
+
+    customer = new Customer();
+    customer.setName("Hilmi AM");
+    customer.setEmail("mail@mail.com");
+    customer.setPhoneNumber("0123456789123");
+    customer.setAddress("BGR");
+    customerRepository.save(customer);
   }
 
   @Test
@@ -124,5 +134,26 @@ class CustomerControllerTest {
 
   }
 
+  @Test
+  void getSuccess() throws Exception {
+    mockMvc.perform(
+        get("/api/customers/" + customer.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<CustomerResponse, Void> response = objectMapper
+          .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+          });
 
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertNull(response.getErrors());
+      assertNotNull(response.getData());
+
+      assertEquals("BGR", response.getData().getAddress());
+    });
+
+  }
 }
