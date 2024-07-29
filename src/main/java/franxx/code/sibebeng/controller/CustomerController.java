@@ -6,12 +6,10 @@ import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController @RequestMapping(path = "/api/customers")
 @RequiredArgsConstructor
@@ -20,21 +18,41 @@ public class CustomerController {
   private final CustomerService customerService;
 
   @PostMapping(
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<WebResponse<CustomerResponse>> create(
+  public ResponseEntity<?> create(
       @RequestBody CreateCustomerRequest request
   ) {
     CustomerResponse customer = customerService.createCustomer(request);
 
-    WebResponse<CustomerResponse> response = WebResponse.<CustomerResponse>builder()
+    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
         .message("customer created successfully")
         .data(customer)
         .build();
 
     return ResponseEntity
         .status(HttpStatus.CREATED)
+        .body(response);
+  }
+
+  @GetMapping(
+      path = "/{customerId}",
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> get(
+      @PathVariable(name = "customerId") String customerId
+  ) {
+
+    var customer = customerService.getCustomer(customerId);
+
+    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
+        .message("one customer found")
+        .data(customer)
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
         .body(response);
   }
 }

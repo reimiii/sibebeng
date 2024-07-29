@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
@@ -60,7 +61,7 @@ class CustomerControllerTest {
         status().isBadRequest()
     ).andDo(result -> {
 
-      WebResponse<Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<Void, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
 
       System.out.println(objectMapper.writeValueAsString(response));
@@ -90,7 +91,7 @@ class CustomerControllerTest {
         status().isCreated()
     ).andDo(result -> {
 
-      WebResponse<CustomerResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<CustomerResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
 
       System.out.println(objectMapper.writeValueAsString(response));
@@ -101,5 +102,27 @@ class CustomerControllerTest {
     });
 
   }
+
+  @Test
+  void getNotFound() throws Exception {
+    mockMvc.perform(
+        get("/api/customers/23123123123")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper
+          .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+          });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertNotNull(response.getErrors());
+      assertNull(response.getData());
+    });
+
+  }
+
 
 }

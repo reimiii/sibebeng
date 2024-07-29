@@ -17,28 +17,32 @@ import java.util.stream.Collectors;
 public class ErrorController {
 
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<WebResponse<Void>> constraintViolation(ConstraintViolationException violationException) {
+  public ResponseEntity<?> constraintViolation(ConstraintViolationException violationException) {
 
     List<String> errors = violationException.getConstraintViolations().stream()
         .map(ConstraintViolation::getMessage)
         .collect(Collectors.toList());
 
-    WebResponse<Void> response = WebResponse.<Void>builder()
+    WebResponse<Void, List<String>> response = WebResponse.<Void, List<String>>builder()
         .message("validation errors")
         .errors(errors)
         .build();
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
         .body(response);
   }
 
   @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity<WebResponse<Void>> apiException(ResponseStatusException exception) {
-    List<String> errors = new ArrayList<>();
-    if (exception.getReason() != null) {
-      errors.add(exception.getReason());
-    }
-    return ResponseEntity.status(exception.getStatusCode())
-        .body(WebResponse.<Void>builder().message(exception.getMessage()).errors(errors).build());
+  public ResponseEntity<?> apiException(ResponseStatusException exception) {
+
+    var response = WebResponse.<Void, String>builder()
+        .message(exception.getReason())
+        .errors(exception.getStatusCode().toString())
+        .build();
+
+    return ResponseEntity
+        .status(exception.getStatusCode())
+        .body(response);
   }
 }
