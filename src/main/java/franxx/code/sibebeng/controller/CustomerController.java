@@ -64,10 +64,10 @@ public class CustomerController {
   )
   public ResponseEntity<?> update(
       @RequestBody UpdateCustomerRequest request,
-      @PathVariable(name = "customerId") String id
+      @PathVariable(name = "customerId") String customerId
   ) {
 
-    request.setId(id);
+    request.setId(customerId);
     var customerResponse = customerService.updateCustomer(request);
     var response = WebResponse.<CustomerResponse, Void>builder()
         .message("customer updated successfully")

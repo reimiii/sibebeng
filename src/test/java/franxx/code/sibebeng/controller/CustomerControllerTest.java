@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
@@ -156,5 +157,67 @@ class CustomerControllerTest {
     });
 
   }
+
+  @Test
+  void updateBadRequest() throws Exception {
+
+    var request = UpdateCustomerRequest.builder()
+        .name("mee")
+        .email("salah")
+        .build();
+
+    mockMvc.perform(
+        put("/api/customers/" + customer.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+    ).andExpectAll(
+        status().isBadRequest()
+    ).andDo(result -> {
+
+      WebResponse<CustomerResponse, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertNotNull(response.getErrors());
+      assertNull(response.getData());
+
+    });
+
+  }
+
+  @Test
+  void updateSuccess() throws Exception {
+
+    var request = UpdateCustomerRequest.builder()
+        .id("mwehehee") // oke ga masuk ke db
+        .name("Mee")
+        .email(customer.getEmail())
+        .phoneNumber(customer.getPhoneNumber())
+        .address("JKT")
+        .build();
+
+    System.out.println(objectMapper.writeValueAsString(request));
+
+    mockMvc.perform(
+        put("/api/customers/" + customer.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+
+      WebResponse<CustomerResponse, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertNull(response.getErrors());
+      assertNotNull(response.getData());
+
+    });
+
+  }
+
 
 }
