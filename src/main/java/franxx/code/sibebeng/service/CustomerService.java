@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service @Transactional
@@ -69,5 +70,17 @@ public class CustomerService {
     customerRepository.save(customer);
 
     return toCustomerResponse(customer);
+  }
+
+  public void deleteCustomer(String id) {
+
+    var customer = customerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+
+    if (!customer.getVehicles().isEmpty()) {
+      throw new ResponseStatusException(CONFLICT, "customer has related vehicle");
+    }
+
+    customerRepository.delete(customer);
   }
 }

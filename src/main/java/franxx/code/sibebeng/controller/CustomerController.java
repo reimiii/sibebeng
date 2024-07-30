@@ -78,4 +78,22 @@ public class CustomerController {
         .status(HttpStatus.OK)
         .body(response);
   }
+
+  @DeleteMapping(
+      path = "/{customerId}",
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> delete(
+      @PathVariable(name = "customerId") String customerId
+  ) {
+    customerService.deleteCustomer(customerId);
+
+    var response = WebResponse.<Void, Void>builder()
+        .message("customer deleted successfully")
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(response);
+  }
 }
