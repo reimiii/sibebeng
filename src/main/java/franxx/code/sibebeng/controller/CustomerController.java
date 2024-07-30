@@ -6,9 +6,13 @@ import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -92,6 +96,39 @@ public class CustomerController {
         .message("customer deleted successfully")
         .data("OK")
         .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(response);
+  }
+
+  @GetMapping(
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> searchCustomer(
+      @RequestParam(name = "keyword", required = false) String keyword,
+      @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+      @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
+  ) {
+    Page<CustomerResponse> customerResponses = customerService.searchCustomer(keyword, page, size);
+
+    Map<String, Object> data = new java.util.HashMap<>();
+    data.put("content", customerResponses.getContent());
+    data.put("pageable", Map.of(
+        "currentPage", customerResponses.getNumber(),
+        "currentSize", customerResponses.getSize(),
+        "hasNext", customerResponses.hasNext(),
+        "hasPrevious", customerResponses.hasPrevious(),
+        "numberOfElements", customerResponses.getNumberOfElements()
+    ));
+    data.put("totalPages", customerResponses.getTotalPages());
+    data.put("totalElements", customerResponses.getTotalElements());
+
+    WebResponse<Map<String, Object>, Void> response = WebResponse.<Map<String, Object>, Void>builder()
+        .message("Search completed successfully")
+        .data(data)
+        .build();
+
 
     return ResponseEntity
         .status(HttpStatus.OK)

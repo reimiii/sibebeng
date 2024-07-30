@@ -6,10 +6,16 @@ import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
+import franxx.code.sibebeng.specification.CustomerSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -83,4 +89,23 @@ public class CustomerService {
 
     customerRepository.delete(customer);
   }
+
+  @Transactional(readOnly = true)
+  public Page<CustomerResponse> searchCustomer(
+      String keyword,
+      Integer page,
+      Integer size
+  ) {
+    PageRequest pageable = PageRequest.of(page, size);
+    Page<Customer> customerPage = customerRepository.findAll(CustomerSpecification.containsTextInAttributes(keyword), pageable);
+    List<CustomerResponse> customerResponseList = customerPage.getContent()
+        .stream()
+        .map(CustomerService::toCustomerResponse)
+        .toList();
+
+    return new PageImpl<>(
+        customerResponseList, pageable, customerPage.getTotalElements()
+    );
+  }
+
 }

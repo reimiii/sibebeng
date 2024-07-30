@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
@@ -263,5 +264,43 @@ class CustomerControllerTest {
 
     });
 
+  }
+
+  @Test
+  void searchWithPaging() throws Exception {
+    for (int i = 0; i < 50; i++) {
+      var customer = new Customer();
+      customer.setName("Test name: " + i);
+      customer.setEmail("main@mail" + i + ".com");
+      customer.setPhoneNumber("1234567891012");
+      customer.setAddress("JKT: " + i);
+      customerRepository.save(customer);
+    }
+
+    mockMvc.perform(
+        get("/api/customers")
+            .param("keyword", "BGR")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<Map<String, Object>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+      System.out.println(objectMapper.writeValueAsString(response));
+      Map<String, Object> pageable = (Map<String, Object>) response.getData().get("pageable");
+      assertEquals(5, pageable.get("currentSize"));
+      assertEquals(1, response.getData().get("totalPages"));
+    });
+
+    mockMvc.perform(
+        get("/api/customers")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<Map<String, Object>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+      System.out.println(objectMapper.writeValueAsString(response));
+    });
   }
 }
