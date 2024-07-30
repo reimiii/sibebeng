@@ -219,5 +219,49 @@ class CustomerControllerTest {
 
   }
 
+  @Test
+  void deletedNotFound() throws Exception {
 
+    mockMvc.perform(
+        delete("/api/customers/not-found")
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isNotFound()
+    ).andDo(result -> {
+
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertNotNull(response.getErrors());
+      assertNull(response.getData());
+      assertNotNull(response.getMessage());
+
+    });
+
+  }
+
+  @Test
+  void deletedSuccess() throws Exception {
+
+    mockMvc.perform(
+        delete("/api/customers/" + customer.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+
+      WebResponse<String, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertNull(response.getErrors());
+      assertEquals("OK", response.getData());
+      assertNotNull(response.getMessage());
+
+    });
+
+  }
 }

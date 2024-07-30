@@ -88,8 +88,9 @@ public class CustomerController {
   ) {
     customerService.deleteCustomer(customerId);
 
-    var response = WebResponse.<Void, Void>builder()
+    var response = WebResponse.<String, Void>builder()
         .message("customer deleted successfully")
+        .data("OK")
         .build();
 
     return ResponseEntity
