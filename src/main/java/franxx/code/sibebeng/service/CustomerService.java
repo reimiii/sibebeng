@@ -2,7 +2,9 @@ package franxx.code.sibebeng.service;
 
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
@@ -54,11 +56,29 @@ public class CustomerService {
   }
 
   @Transactional(readOnly = true)
-  public CustomerResponse getCustomerDetail(String id) {
+  public CustomerDetailResponse getCustomerDetail(String id) {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
-    return toCustomerResponse(customer);
+    List<VehicleResponse> vehicleResponses = customer.getVehicles().stream()
+        .map(vehicle -> VehicleResponse.builder()
+            .id(vehicle.getId())
+            .brand(vehicle.getBrand())
+            .model(vehicle.getModel())
+            .licensePlate(vehicle.getLicensePlate())
+            .year(vehicle.getYear())
+            .color(vehicle.getColor())
+            .build()
+        ).toList();
+
+    return CustomerDetailResponse.builder()
+        .id(customer.getId())
+        .name(customer.getName())
+        .address(customer.getAddress())
+        .phoneNumber(customer.getPhoneNumber())
+        .email(customer.getEmail())
+        .vehicles(vehicleResponses)
+        .build();
   }
 
   public CustomerResponse updateCustomer(UpdateCustomerRequest request) {

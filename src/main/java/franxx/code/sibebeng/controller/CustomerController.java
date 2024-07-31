@@ -3,6 +3,7 @@ package franxx.code.sibebeng.controller;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class CustomerController {
 
     var customer = customerService.getCustomerDetail(id);
 
-    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
+    WebResponse<CustomerDetailResponse, Void> response = WebResponse.<CustomerDetailResponse, Void>builder()
         .message("one customer found")
         .data(customer)
         .build();

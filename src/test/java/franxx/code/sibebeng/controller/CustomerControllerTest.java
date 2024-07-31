@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
+import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -145,7 +147,7 @@ class CustomerControllerTest {
     ).andExpectAll(
         status().isOk()
     ).andDo(result -> {
-      WebResponse<CustomerResponse, Void> response = objectMapper
+      WebResponse<CustomerDetailResponse, Void> response = objectMapper
           .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
           });
 
@@ -153,6 +155,7 @@ class CustomerControllerTest {
 
       assertNull(response.getErrors());
       assertNotNull(response.getData());
+      assertEquals(Collections.emptyList(), response.getData().getVehicles());
 
       assertEquals("BGR", response.getData().getAddress());
     });
