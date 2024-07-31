@@ -58,30 +58,34 @@
 
 ```json
 {
-  "message": "Search completed successfully",
+  "message": "search completed successfully",
   "data": {
-    "totalPages": 11,
-    "pageable": {
-      "currentSize": 5,
-      "currentPage": 0,
-      "numberOfElements": 5,
-      "hasNext": true,
-      "hasPrevious": false
-    },
     "content": [
       {
-        "id": "022fb86d-c75b-4183-a896-574e7e25280a",
-        "name": "Test name: 44",
-        "email": "main@mail44.com",
+        "id": "03a8e9e7-d00d-49ad-af20-0a8e607ee56a",
+        "name": "Test name: 33",
+        "email": "main@mail33.com",
         "phoneNumber": "1234567891012",
-        "address": "JKT: 44"
+        "address": "JKT: 33"
       },
-      ....
+      {
+        "id": "1febd1d4-fb77-452e-82e3-e125e8cc8c01",
+        "name": "Test name: 41",
+        "email": "main@mail41.com",
+        "phoneNumber": "1234567891012",
+        "address": "JKT: 41"
+      }
     ],
+    "currentPage": 0,
+    "currentSize": 2,
+    "hasNext": true,
+    "hasPrevious": false,
+    "numberOfElements": 2,
+    "totalPages": 26,
     "totalElements": 51
   },
   "errors": null
-}      
+}
 ```
 
 #### 3. Get Customer by ID
