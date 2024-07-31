@@ -3,6 +3,7 @@ package franxx.code.sibebeng.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import franxx.code.sibebeng.dto.PageableData;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
@@ -287,12 +288,11 @@ class CustomerControllerTest {
     ).andExpectAll(
         status().isOk()
     ).andDo(result -> {
-      WebResponse<Map<String, Object>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
       System.out.println(objectMapper.writeValueAsString(response));
-      Map<String, Object> pageable = (Map<String, Object>) response.getData().get("pageable");
-      assertEquals(5, pageable.get("currentSize"));
-      assertEquals(1, response.getData().get("totalPages"));
+      assertEquals(1, response.getData().getNumberOfElements());
+      assertEquals("Hilmi AM", response.getData().getContent().getFirst().getName());
     });
 
     mockMvc.perform(
@@ -301,9 +301,53 @@ class CustomerControllerTest {
     ).andExpectAll(
         status().isOk()
     ).andDo(result -> {
-      WebResponse<Map<String, Object>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
       System.out.println(objectMapper.writeValueAsString(response));
+      assertEquals(51, response.getData().getTotalElements());
+    });
+
+    mockMvc.perform(
+        get("/api/customers")
+            .param("page", "1")
+            .param("size", "2")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertEquals(51, response.getData().getTotalElements());
+    });
+
+    mockMvc.perform(
+        get("/api/customers")
+            .param("page", "2")
+            .param("size", "2")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertEquals(51, response.getData().getTotalElements());
+    });
+
+    mockMvc.perform(
+        get("/api/customers")
+            .param("page", "26")
+            .param("size", "2")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertEquals(51, response.getData().getTotalElements());
     });
   }
+
 }

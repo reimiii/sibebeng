@@ -1,5 +1,6 @@
 package franxx.code.sibebeng.controller;
 
+import franxx.code.sibebeng.dto.PageableData;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
@@ -112,21 +113,20 @@ public class CustomerController {
   ) {
     Page<CustomerResponse> customerResponses = customerService.searchCustomer(keyword, page, size);
 
-    Map<String, Object> data = new java.util.HashMap<>();
-    data.put("content", customerResponses.getContent());
-    data.put("pageable", Map.of(
-        "currentPage", customerResponses.getNumber(),
-        "currentSize", customerResponses.getSize(),
-        "hasNext", customerResponses.hasNext(),
-        "hasPrevious", customerResponses.hasPrevious(),
-        "numberOfElements", customerResponses.getNumberOfElements()
-    ));
-    data.put("totalPages", customerResponses.getTotalPages());
-    data.put("totalElements", customerResponses.getTotalElements());
+    PageableData<CustomerResponse> pageableData = PageableData.<CustomerResponse>builder()
+        .content(customerResponses.getContent())
+        .currentPage(customerResponses.getNumber())
+        .currentSize(customerResponses.getSize())
+        .hasNext(customerResponses.hasNext())
+        .hasPrevious(customerResponses.hasPrevious())
+        .numberOfElements(customerResponses.getNumberOfElements())
+        .totalPages(customerResponses.getTotalPages())
+        .totalElements(customerResponses.getTotalElements())
+        .build();
 
-    WebResponse<Map<String, Object>, Void> response = WebResponse.<Map<String, Object>, Void>builder()
-        .message("Search completed successfully")
-        .data(data)
+    WebResponse<PageableData<CustomerResponse>, Void> response = WebResponse.<PageableData<CustomerResponse>, Void>builder()
+        .message("search completed successfully")
+        .data(pageableData)
         .build();
 
 
