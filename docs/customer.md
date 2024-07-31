@@ -1,7 +1,8 @@
 ### API Specification
 
 #### Base URL
-`http://yourdomain.com/api`
+
+`http://localhost:8181/api`
 
 ### Endpoints
 
@@ -16,12 +17,10 @@
 
 ```json
 {
-    "customer": {
-        "name": "John Doe",
-        "address": "123 Main St",
-        "phoneNumber": "555-1234",
-        "email": "john.doe@example.com"
-    }
+  "name": "John Doe",
+  "address": "123 Main St",
+  "phoneNumber": "555-1234",
+  "email": "john.doe@example.com"
 }
 ```
 
@@ -46,107 +45,107 @@
       }
       ```
 
-#### 2. Get All Customers
+#### 2. Get All Customers with Search
 
 - **Endpoint**: `/customers`
+- **Parameter**: `keyword` (optional)
 - **Method**: `GET`
 - **Description**: Mendapatkan daftar semua pelanggan.
 - **Responses**:
-    - **200 OK**: Jika daftar pelanggan berhasil diambil.
-        - **Content-Type**: `application/json`
-        - **Body**:
+- **200 OK**: Jika daftar pelanggan berhasil diambil.
+- **Content-Type**: `application/json`
+- **Body**:
 
-      ```json
+```json
+{
+  "message": "Search completed successfully",
+  "data": {
+    "totalPages": 11,
+    "pageable": {
+      "currentSize": 5,
+      "currentPage": 0,
+      "numberOfElements": 5,
+      "hasNext": true,
+      "hasPrevious": false
+    },
+    "content": [
       {
-          "message": "Customers retrieved successfully",
-          "data": [
-              {
-                  "id": 1,
-                  "name": "John Doe",
-                  "address": "123 Main St",
-                  "phoneNumber": "555-1234",
-                  "email": "john.doe@example.com",
-                  "vehicles": [
-                      {
-                          "id": 1,
-                          "licensePlate": "AB123CD",
-                          "brand": "Toyota",
-                          "model": "Camry",
-                          "year": 2018,
-                          "color": "Blue"
-                      }
-                  ]
-              }
-          ],
-          "errors": []
-      }
-      ```
+        "id": "022fb86d-c75b-4183-a896-574e7e25280a",
+        "name": "Test name: 44",
+        "email": "main@mail44.com",
+        "phoneNumber": "1234567891012",
+        "address": "JKT: 44"
+      },
+      ....
+    ],
+    "totalElements": 51
+  },
+  "errors": null
+}      
+```
 
 #### 3. Get Customer by ID
 
 - **Endpoint**: `/customers/{id}`
 - **Method**: `GET`
 - **Description**: Mendapatkan detail pelanggan berdasarkan ID.
-- **Path Parameters**:
-    - `id`: ID dari pelanggan yang ingin diambil.
-- **Responses**:
-    - **200 OK**: Jika detail pelanggan berhasil diambil.
-        - **Content-Type**: `application/json`
-        - **Body**:
+- **Path Parameters**: - `id`: ID dari pelanggan yang ingin diambil.
+- **Responses**: - **200 OK**: Jika detail pelanggan berhasil diambil.
+- **Content-Type**: `application/json`
+- **Body**:
 
-      ```json
+```json
+{
+  "message": "Customer retrieved successfully",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "address": "123 Main St",
+    "phoneNumber": "555-1234",
+    "email": "john.doe@example.com",
+    "vehicles": [
       {
-          "message": "Customer retrieved successfully",
-          "data": {
-              "id": 1,
-              "name": "John Doe",
-              "address": "123 Main St",
-              "phoneNumber": "555-1234",
-              "email": "john.doe@example.com",
-              "vehicles": [
-                  {
-                      "id": 1,
-                      "licensePlate": "AB123CD",
-                      "brand": "Toyota",
-                      "model": "Camry",
-                      "year": 2018,
-                      "color": "Blue"
-                  }
-              ]
-          },
-          "errors": []
+        "id": 1,
+        "licensePlate": "AB123CD",
+        "brand": "Toyota",
+        "model": "Camry",
+        "year": 2018,
+        "color": "Blue"
       }
-      ```
-    - **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
-        - **Content-Type**: `application/json`
-        - **Body**:
+    ]
+  },
+  "errors": []
+}
+```
 
-      ```json
-      {
-          "message": "Customer not found",
-          "data": null,
-          "errors": ["Customer with ID {id} not found"]
-      }
-      ```
+- **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
+- **Content-Type**: `application/json`
+- **Body**:
+
+```json
+{
+  "message": "Customer not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+
+```
 
 #### 4. Update Customer
 
 - **Endpoint**: `/customers/{id}`
 - **Method**: `PUT`
 - **Description**: Memperbarui detail pelanggan berdasarkan ID.
-- **Path Parameters**:
-    - `id`: ID dari pelanggan yang ingin diperbarui.
-- **Request Body**:
-    - **Content-Type**: `application/json`
-    - **Schema**:
+- **Path Parameters**: - `id`: ID dari pelanggan yang ingin diperbarui.
+- **Request Body**: - **Content-Type**: `application/json`
+- **Schema**: ```json
+  {
+  "name": "Jane Doe",
+  "address": "456 Elm St",
+  "phoneNumber": "555-5678",
+  "email": "jane.doe@example.com"
+  }
 
-```json
-{
-    "name": "Jane Doe",
-    "address": "456 Elm St",
-    "phoneNumber": "555-5678",
-    "email": "jane.doe@example.com"
-}
 ```
 
 - **Responses**:
@@ -175,7 +174,7 @@
       {
           "message": "Customer not found",
           "data": null,
-          "errors": ["Customer with ID {id} not found"]
+          "errors": "404 NOT FOUND"
       }
       ```
     - **400 Bad Request**: Jika ada kesalahan pada data yang dikirim.
@@ -205,7 +204,7 @@
       ```json
       {
           "message": "Customer deleted successfully",
-          "data": "Success",
+          "data": "OK",
           "errors": []
       }
       ```
@@ -217,51 +216,6 @@
       {
           "message": "Customer not found",
           "data": null,
-          "errors": ["Customer with ID {id} not found"]
+          "errors": "404 NOT FOUND"
       }
       ```
-
-### Contoh Implementasi JSON Request dan Response
-
-#### Request untuk menambahkan Customer dan Vehicle:
-
-```json
-{
-    "customer": {
-        "name": "Jane Doe",
-        "address": "456 Elm St",
-        "phoneNumber": "555-5678",
-        "email": "jane.doe@example.com"
-    },
-    "vehicle": {
-        "licensePlate": "CD456EF",
-        "brand": "Honda",
-        "model": "Civic",
-        "year": 2020,
-        "color": "Red"
-    }
-}
-```
-
-#### Response untuk sukses menambahkan Customer dan Vehicle:
-
-```json
-{
-    "message": "Customer and Vehicle added successfully",
-    "data": "Success",
-    "errors": []
-}
-```
-
-#### Response untuk kesalahan validasi:
-
-```json
-{
-    "message": "Validation error",
-    "data": null,
-    "errors": [
-        "customer.name: Name is required",
-        "vehicle.licensePlate: License plate is required"
-    ]
-}
-```
