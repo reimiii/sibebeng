@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -49,7 +48,7 @@ public class CustomerController {
       @PathVariable(name = "customerId") String id
   ) {
 
-    var customer = customerService.getCustomer(id);
+    var customer = customerService.getCustomerDetail(id);
 
     WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
         .message("one customer found")

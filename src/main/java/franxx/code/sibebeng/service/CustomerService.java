@@ -54,7 +54,7 @@ public class CustomerService {
   }
 
   @Transactional(readOnly = true)
-  public CustomerResponse getCustomer(String id) {
+  public CustomerResponse getCustomerDetail(String id) {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
