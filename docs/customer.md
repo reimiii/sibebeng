@@ -142,13 +142,15 @@
 - **Description**: Memperbarui detail pelanggan berdasarkan ID.
 - **Path Parameters**: - `id`: ID dari pelanggan yang ingin diperbarui.
 - **Request Body**: - **Content-Type**: `application/json`
-- **Schema**: ```json
-  {
+- **Schema**: 
+```json
+
+{
   "name": "Jane Doe",
   "address": "456 Elm St",
   "phoneNumber": "555-5678",
   "email": "jane.doe@example.com"
-  }
+}
 
 ```
 
@@ -158,6 +160,7 @@
         - **Body**:
 
       ```json
+      
       {
           "message": "Customer updated successfully",
           "data": {
