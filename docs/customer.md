@@ -71,7 +71,7 @@ Response - 200 OK :
 
 ```json 
 {
-  "message": "customer added successfully",
+  "message": "customer found",
   "data": {
     "id": "string, unique",
     "name": "string",

@@ -1,52 +1,258 @@
-### API Specification
+## Vehicle API Spec
 
-#### Base URL
+### Base URL
 
 `http://localhost:8181/api/customers/{customerId}/`
 
-### Endpoints
+## Endpoints
 
-#### 1. Add Vehicle
+### Create Vehicle
 
-- **Endpoint**: `/vehicles`
-- **Method**: `POST`
-- **Description**: Menambahkan vehicle ke customer terkait
-- **Request Body**:
-  - **Content-Type**: `application/json`
-- **Schema**:
+Request :
 
-```json
+- Method : POST
+- Endpoint : `/vehicles`
+- Header :
+  - Content-Type: application/json
+  - Accept: application/json
+
+Body :
+
+```json 
 {
-  "licensePlate": "B 1234 PP",
-  "model": "Camry",
+  "licensePlate": "AB123CD",
   "brand": "Toyota",
-  "year": "2002",
-  "color": "Red Blue"
+  "model": "Camry",
+  "year": 2018,
+  "color": "Blue"
 }
 ```
 
-- **Responses**:
-- **201 Created**: jika success
-  - **Content-Type**: `application/json`
-- **Body**:
+Response - 201 Created :
 
-```json
+```json 
 {
-  "message": "vehicle added successfully"
+  "message": "vehicle added successfully",
+  "data": {
+    "id": "uuid",
+    "licensePlate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Camry",
+    "year": 2018,
+    "color": "Blue"
+  },
+  "errors": null
 }
 ```
 
-- **400 Bad Request**: Jika ada kesalahan pada data yang dikirim.
-  - **Content-Type**: `application/json`
-- **Body**:
+Response - 400 Bad Request :
 
-```json
+```json 
 {
-  "message": "validation error",
+  "message": "validation errors",
+  "data": null,
   "errors": [
-    "year only take 4 char",
-    "license plate is required"
+    "brand required",
+    "color required"
   ]
 }
 ```
 
+---
+
+### Get Vehicle
+
+Request :
+
+- Method : GET
+- Endpoint : `/vehicles/{vehicleId}`
+- Header :
+  - Accept: application/json
+
+Response - 200 OK :
+
+```json 
+{
+  "message": "vehicle retrieved successfully",
+  "data": {
+    "id": "uuid",
+    "licensePlate": "AB123CD",
+    "brand": "Toyota",
+    "model": "Camry",
+    "year": 2018,
+    "color": "Blue",
+    "repairs": [
+      {
+        "id": "string",
+        "entryDate": "date time or instance",
+        "exitDate": "date time or instance",
+        "description": "string"
+      }
+    ]
+  },
+  "errors": null
+}
+```
+
+Response - 404 Not Found :
+
+```json 
+{
+  "message": "vehicle not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+```
+
+---
+
+### Update Vehicle
+
+Request :
+
+- Method : PUT
+- Endpoint : `/vehicles/{vehicleId}`
+- Header :
+  - Content-Type: application/json
+  - Accept: application/json
+
+Body :
+
+```json 
+{
+  "licensePlate": "AB123CD",
+  "brand": "Toyota",
+  "model": "Camry",
+  "year": 2018,
+  "color": "Blue"
+}
+```
+
+Response - 200 OK :
+
+```json 
+{
+  "message": "vehicle updated successfully",
+  "data": {
+    "id": "uuid",
+    "licensePlate": "MAP UPD",
+    "brand": "Toyota",
+    "model": "Camry",
+    "year": 2018,
+    "color": "Blue"
+  },
+  "errors": null
+}
+```
+
+Response - 404 Not Found :
+
+```json 
+{
+  "message": "vehicle not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+```
+
+Response - 400 Bad Request :
+
+```json 
+{
+  "message": "validation errors",
+  "data": null,
+  "errors": [
+    "brand required",
+    "color required"
+  ]
+}
+```
+
+---
+
+### List Vehicles
+
+Request :
+
+- Method : GET
+- Endpoint : `/vehicles`
+- Header :
+  - Accept: application/json
+- Query Param :
+  - size : number,
+  - page : number
+
+Response - 200 OK:
+
+```json
+{
+  "message": "list of vehicle retrieved successfully",
+  "data": {
+    "content": [
+      {
+        "licensePlate": "AB123CD",
+        "brand": "Toyota",
+        "model": "Camry",
+        "year": 2018,
+        "color": "Blue"
+      },
+      {
+        "licensePlate": "AB123CD",
+        "brand": "Toyota",
+        "model": "Camry",
+        "year": 2018,
+        "color": "Blue"
+      }
+    ],
+    "currentPage": 0,
+    "currentSize": 2,
+    "hasNext": true,
+    "hasPrevious": false,
+    "numberOfElements": 2,
+    "totalPages": 26,
+    "totalElements": 51
+  },
+  "errors": null
+}
+```
+
+---
+
+### Delete Vehicle
+
+Request :
+
+- Method : DELETE
+- Endpoint : `/vehicles/{vehicleId}`
+- Header :
+  - Accept: application/json
+
+Response - 200 OK :
+
+```json
+{
+  "message": "vehicle deleted successfully",
+  "data": "OK",
+  "errors": null
+}
+```
+
+Response - 404 Not Found :
+
+```json 
+{
+  "message": "vehicle not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+```
+
+Response - 409 Conflict :
+
+```json 
+{
+  "message": "vehicle still has list of repairs",
+  "data": null,
+  "errors": "409 CONFLICT"
+}
+```
