@@ -212,7 +212,7 @@
       {
           "message": "Customer deleted successfully",
           "data": "OK",
-          "errors": []
+          "errors": null
       }
       ```
     - **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
