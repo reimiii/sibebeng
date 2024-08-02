@@ -1,21 +1,24 @@
-### API Specification
+## Customer API Spec
 
-#### Base URL
+### Base URL
 
 `http://localhost:8181/api`
 
-### Endpoints
+## Endpoints
 
-#### 1. Add Customer and Vehicle
+### Create Customer
 
-- **Endpoint**: `/customers`
-- **Method**: `POST`
-- **Description**: Menambahkan pelanggan baru beserta kendaraannya.
-- **Request Body**:
-    - **Content-Type**: `application/json`
-    - **Schema**:
+Request :
 
-```json
+- Method : POST
+- Endpoint : `/customers`
+- Header :
+    - Content-Type: application/json
+    - Accept: application/json
+
+Body :
+
+```json 
 {
   "name": "John Doe",
   "address": "123 Main St",
@@ -24,37 +27,160 @@
 }
 ```
 
-- **Responses**:
-    - **201 Created**: Jika pelanggan.
-        - **Content-Type**: `application/json`
-        - **Body**:
+Response - 201 Created :
 
-      ```json
+```json 
+{
+  "message": "customer added successfully",
+  "data": {
+    "id": "string, unique",
+    "name": "string",
+    "address": "string",
+    "phoneNumber": "string",
+    "email": "email"
+  },
+  "errors": null
+}
+```
+
+Response - 400 Bad Request :
+
+```json 
+{
+  "message": "validation errors",
+  "data": null,
+  "errors": [
+    "name required",
+    "address required"
+  ]
+}
+```
+
+---
+
+### Get Customer
+
+Request :
+
+- Method : GET
+- Endpoint : `/customers/{customerId}`
+- Header :
+    - Accept: application/json
+
+Response - 200 OK :
+
+```json 
+{
+  "message": "customer added successfully",
+  "data": {
+    "id": "string, unique",
+    "name": "string",
+    "address": "string",
+    "phoneNumber": "string",
+    "email": "email",
+    "vehicles": [
       {
-          "message": "Customer added successfully"
+        "id": 1,
+        "licensePlate": "AB123CD",
+        "brand": "Toyota",
+        "model": "Camry",
+        "year": 2018,
+        "color": "Blue"
       }
-      ```
-    - **400 Bad Request**: Jika ada kesalahan pada data yang dikirim.
-        - **Content-Type**: `application/json`
-        - **Body**:
+    ]
+  },
+  "errors": null
+}
+```
 
-      ```json
-      {
-          "message": "Validation error",
-          "details": ["Customer name is required", "Vehicle license plate is required"]
-      }
-      ```
+Response - 404 Not Found :
 
-#### 2. Get All Customers with Search
+```json 
+{
+  "message": "customer not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+```
 
-- **Endpoint**: `/customers`
-- **Parameter**: `keyword` (optional)
-- **Method**: `GET`
-- **Description**: Mendapatkan daftar semua pelanggan.
-- **Responses**:
-- **200 OK**: Jika daftar pelanggan berhasil diambil.
-- **Content-Type**: `application/json`
-- **Body**:
+---
+
+### Update Customer
+
+Request :
+
+- Method : PUT
+- Endpoint : `/customers/{customerId}`
+- Header :
+    - Content-Type: application/json
+    - Accept: application/json
+
+Body :
+
+```json 
+{
+  "name": "John Doe",
+  "address": "123 Main St",
+  "phoneNumber": "555-1234",
+  "email": "john.doe@example.com"
+}
+```
+
+Response - 200 OK :
+
+```json 
+{
+  "message": "customer updated successfully",
+  "data": {
+    "id": "string, unique",
+    "name": "string, update",
+    "address": "string",
+    "phoneNumber": "string",
+    "email": "email"
+  },
+  "errors": null
+}
+```
+
+Response - 404 Not Found :
+
+```json 
+{
+  "message": "customer not found",
+  "data": null,
+  "errors": "404 NOT FOUND"
+}
+```
+
+Response - 400 Bad Request :
+
+```json 
+{
+  "message": "validation errors",
+  "data": null,
+  "errors": [
+    "name required",
+    "address required"
+  ]
+}
+```
+
+---
+
+### List Customers with Search
+
+Request :
+
+- Method : GET
+- Endpoint : `/customers`
+- Header :
+    - Accept: application/json
+- Query Param - Optional :
+    - keyword : string
+    - size : number,
+    - page : number
+
+Response - 200 OK:
 
 ```json
 {
@@ -88,141 +214,43 @@
 }
 ```
 
-#### 3. Get Customer by ID
+---
 
-- **Endpoint**: `/customers/{id}`
-- **Method**: `GET`
-- **Description**: Mendapatkan detail pelanggan berdasarkan ID.
-- **Path Parameters**: - `id`: ID dari pelanggan yang ingin diambil.
-- **Responses**: - **200 OK**: Jika detail pelanggan berhasil diambil.
-- **Content-Type**: `application/json`
-- **Body**:
+### Delete Customer
+
+Request :
+
+- Method : DELETE
+- Endpoint : `/customers/{customerId}`
+- Header :
+    - Accept: application/json
+
+Response - 200 OK :
 
 ```json
 {
-  "message": "Customer retrieved successfully",
-  "data": {
-    "id": 1,
-    "name": "John Doe",
-    "address": "123 Main St",
-    "phoneNumber": "555-1234",
-    "email": "john.doe@example.com",
-    "vehicles": [
-      {
-        "id": 1,
-        "licensePlate": "AB123CD",
-        "brand": "Toyota",
-        "model": "Camry",
-        "year": 2018,
-        "color": "Blue"
-      }
-    ]
-  },
-  "errors": []
+  "message": "customer deleted successfully",
+  "data": "OK",
+  "errors": null
 }
 ```
 
-- **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
-- **Content-Type**: `application/json`
-- **Body**:
+Response - 404 Not Found :
 
-```json
+```json 
 {
-  "message": "Customer not found",
+  "message": "customer not found",
   "data": null,
   "errors": "404 NOT FOUND"
 }
-
 ```
 
-#### 4. Update Customer
+Response - 409 Conflict :
 
-- **Endpoint**: `/customers/{id}`
-- **Method**: `PUT`
-- **Description**: Memperbarui detail pelanggan berdasarkan ID.
-- **Path Parameters**: - `id`: ID dari pelanggan yang ingin diperbarui.
-- **Request Body**: - **Content-Type**: `application/json`
-- **Schema**: 
-```json
-
+```json 
 {
-  "name": "Jane Doe",
-  "address": "456 Elm St",
-  "phoneNumber": "555-5678",
-  "email": "jane.doe@example.com"
+  "message": "customer still has vehicles",
+  "data": null,
+  "errors": "409 CONFLICT"
 }
-
 ```
-
-- **Responses**:
-    - **200 OK**: Jika pelanggan berhasil diperbarui.
-        - **Content-Type**: `application/json`
-        - **Body**:
-
-      ```json
-      
-      {
-          "message": "Customer updated successfully",
-          "data": {
-              "id": 1,
-              "name": "Jane Doe",
-              "address": "456 Elm St",
-              "phoneNumber": "555-5678",
-              "email": "jane.doe@example.com"
-          },
-          "errors": []
-      }
-      ```
-    - **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
-        - **Content-Type**: `application/json`
-        - **Body**:
-
-      ```json
-      {
-          "message": "Customer not found",
-          "data": null,
-          "errors": "404 NOT FOUND"
-      }
-      ```
-    - **400 Bad Request**: Jika ada kesalahan pada data yang dikirim.
-        - **Content-Type**: `application/json`
-        - **Body**:
-
-      ```json
-      {
-          "message": "Validation error",
-          "data": null,
-          "errors": ["Customer name is required", "Phone number must be between 10 and 15 characters"]
-      }
-      ```
-
-#### 5. Delete Customer
-
-- **Endpoint**: `/customers/{id}`
-- **Method**: `DELETE`
-- **Description**: Menghapus pelanggan berdasarkan ID.
-- **Path Parameters**:
-    - `id`: ID dari pelanggan yang ingin dihapus.
-- **Responses**:
-    - **200 OK**: Jika pelanggan berhasil dihapus.
-        - **Content-Type**: `application/json`
-        - **Body**:
-
-      ```json
-      {
-          "message": "Customer deleted successfully",
-          "data": "OK",
-          "errors": null
-      }
-      ```
-    - **404 Not Found**: Jika pelanggan dengan ID tersebut tidak ditemukan.
-        - **Content-Type**: `application/json`
-        - **Body**:
-
-      ```json
-      {
-          "message": "Customer not found",
-          "data": null,
-          "errors": "404 NOT FOUND"
-      }
-      ```

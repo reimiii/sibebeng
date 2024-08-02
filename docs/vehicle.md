@@ -43,7 +43,7 @@
 ```json
 {
   "message": "validation error",
-  "details": [
+  "errors": [
     "year only take 4 char",
     "license plate is required"
   ]
