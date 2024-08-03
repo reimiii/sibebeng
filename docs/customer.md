@@ -37,7 +37,8 @@ Response - 201 Created :
     "name": "string",
     "address": "string",
     "phoneNumber": "string",
-    "email": "email"
+    "email": "email",
+    "vehicles": []
   },
   "errors": null
 }
@@ -71,7 +72,7 @@ Response - 200 OK :
 
 ```json 
 {
-  "message": "customer found",
+  "message": "customer retrieved successfully",
   "data": {
     "id": "string, unique",
     "name": "string",
@@ -136,7 +137,8 @@ Response - 200 OK :
     "name": "string, update",
     "address": "string",
     "phoneNumber": "string",
-    "email": "email"
+    "email": "email",
+    "vehicles": []
   },
   "errors": null
 }
@@ -184,7 +186,7 @@ Response - 200 OK:
 
 ```json
 {
-  "message": "search completed successfully",
+  "message": "customers retrieved successfully",
   "data": {
     "content": [
       {
@@ -192,14 +194,34 @@ Response - 200 OK:
         "name": "Test name: 33",
         "email": "main@mail33.com",
         "phoneNumber": "1234567891012",
-        "address": "JKT: 33"
+        "address": "JKT: 33",
+        "vehicles": [
+          {
+            "id": 1,
+            "licensePlate": "AB123CD",
+            "brand": "Toyota",
+            "model": "Camry",
+            "year": 2018,
+            "color": "Red Blue"
+          }
+        ]
       },
       {
         "id": "1febd1d4-fb77-452e-82e3-e125e8cc8c01",
         "name": "Test name: 41",
         "email": "main@mail41.com",
         "phoneNumber": "1234567891012",
-        "address": "JKT: 41"
+        "address": "JKT: 41",
+        "vehicles": [
+          {
+            "id": 1,
+            "licensePlate": "AB123CD",
+            "brand": "Toyota",
+            "model": "Camry",
+            "year": 2018,
+            "color": "Blue"
+          }
+        ]
       }
     ],
     "currentPage": 0,

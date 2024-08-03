@@ -13,8 +13,8 @@ Request :
 - Method : POST
 - Endpoint : `/vehicles`
 - Header :
-  - Content-Type: application/json
-  - Accept: application/json
+    - Content-Type: application/json
+    - Accept: application/json
 
 Body :
 
@@ -68,7 +68,7 @@ Request :
 - Method : GET
 - Endpoint : `/vehicles/{vehicleId}`
 - Header :
-  - Accept: application/json
+    - Accept: application/json
 
 Response - 200 OK :
 
@@ -114,8 +114,8 @@ Request :
 - Method : PUT
 - Endpoint : `/vehicles/{vehicleId}`
 - Header :
-  - Content-Type: application/json
-  - Accept: application/json
+    - Content-Type: application/json
+    - Accept: application/json
 
 Body :
 
@@ -179,16 +179,16 @@ Request :
 - Method : GET
 - Endpoint : `/vehicles`
 - Header :
-  - Accept: application/json
+    - Accept: application/json
 - Query Param :
-  - size : number,
-  - page : number
+    - size : number,
+    - page : number
 
 Response - 200 OK:
 
 ```json
 {
-  "message": "list of vehicle retrieved successfully",
+  "message": "vehicles retrieved successfully",
   "data": {
     "content": [
       {
@@ -243,7 +243,7 @@ Request :
 - Method : DELETE
 - Endpoint : `/vehicles/{vehicleId}`
 - Header :
-  - Accept: application/json
+    - Accept: application/json
 
 Response - 200 OK :
 
@@ -269,7 +269,7 @@ Response - 409 Conflict :
 
 ```json 
 {
-  "message": "vehicle still has list of repairs",
+  "message": "vehicle still has repairs",
   "data": null,
   "errors": "409 CONFLICT"
 }
