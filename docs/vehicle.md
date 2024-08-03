@@ -39,7 +39,8 @@ Response - 201 Created :
     "brand": "Toyota",
     "model": "Camry",
     "year": 2018,
-    "color": "Blue"
+    "color": "Blue",
+    "repairs": []
   },
   "errors": null
 }
@@ -139,7 +140,8 @@ Response - 200 OK :
     "brand": "Toyota",
     "model": "Camry",
     "year": 2018,
-    "color": "Blue"
+    "color": "Blue",
+    "repairs": []
   },
   "errors": null
 }
@@ -194,14 +196,30 @@ Response - 200 OK:
         "brand": "Toyota",
         "model": "Camry",
         "year": 2018,
-        "color": "Blue"
+        "color": "Blue",
+        "repairs": [
+          {
+            "id": "string",
+            "entryDate": "date time or instance",
+            "exitDate": "date time or instance",
+            "description": "string"
+          }
+        ]
       },
       {
         "licensePlate": "AB123CD",
         "brand": "Toyota",
         "model": "Camry",
         "year": 2018,
-        "color": "Blue"
+        "color": "Blue",
+        "repairs": [
+          {
+            "id": "string",
+            "entryDate": "date time or instance",
+            "exitDate": "date time or instance",
+            "description": "string"
+          }
+        ]
       }
     ],
     "currentPage": 0,
