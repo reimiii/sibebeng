@@ -2,9 +2,8 @@ package franxx.code.sibebeng.service;
 
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
-import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
-import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
+import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
@@ -30,13 +30,31 @@ public class CustomerService {
 
   private final ValidationService validationService;
 
-  private static CustomerResponse toCustomerResponse(Customer customer) {
+  private static List<SimpleVehicleResponse> getSimpleVehicleResponses(Customer customer) {
+    if (customer.getVehicles().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return customer.getVehicles().stream()
+        .map(vehicle -> SimpleVehicleResponse.builder()
+            .id(vehicle.getId())
+            .brand(vehicle.getBrand())
+            .model(vehicle.getModel())
+            .licensePlate(vehicle.getLicensePlate())
+            .year(vehicle.getYear())
+            .color(vehicle.getColor())
+            .build()
+        ).toList();
+  }
+
+  private CustomerResponse toCustomerResponse(Customer customer) {
     return CustomerResponse.builder()
         .id(customer.getId())
         .name(customer.getName())
         .email(customer.getEmail())
         .phoneNumber(customer.getPhoneNumber())
         .address(customer.getAddress())
+        .vehicles(getSimpleVehicleResponses(customer))
         .build();
   }
 
@@ -56,29 +74,11 @@ public class CustomerService {
   }
 
   @Transactional(readOnly = true)
-  public CustomerDetailResponse getCustomerDetail(String id) {
+  public CustomerResponse getCustomerDetail(String id) {
     Customer customer = customerRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
-    List<VehicleResponse> vehicleResponses = customer.getVehicles().stream()
-        .map(vehicle -> VehicleResponse.builder()
-            .id(vehicle.getId())
-            .brand(vehicle.getBrand())
-            .model(vehicle.getModel())
-            .licensePlate(vehicle.getLicensePlate())
-            .year(vehicle.getYear())
-            .color(vehicle.getColor())
-            .build()
-        ).toList();
-
-    return CustomerDetailResponse.builder()
-        .id(customer.getId())
-        .name(customer.getName())
-        .address(customer.getAddress())
-        .phoneNumber(customer.getPhoneNumber())
-        .email(customer.getEmail())
-        .vehicles(vehicleResponses)
-        .build();
+    return toCustomerResponse(customer);
   }
 
   public CustomerResponse updateCustomer(UpdateCustomerRequest request) {
@@ -104,14 +104,14 @@ public class CustomerService {
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
     if (!customer.getVehicles().isEmpty()) {
-      throw new ResponseStatusException(CONFLICT, "customer has related vehicle");
+      throw new ResponseStatusException(CONFLICT, "customer still has vehicles");
     }
 
     customerRepository.delete(customer);
   }
 
   @Transactional(readOnly = true)
-  public Page<CustomerResponse> searchCustomer(
+  public Page<CustomerResponse> getsAndSearchCustomers(
       String keyword,
       Integer page,
       Integer size
@@ -120,7 +120,7 @@ public class CustomerService {
     Page<Customer> customerPage = customerRepository.findAll(CustomerSpecification.containsTextInAttributes(keyword), pageable);
     List<CustomerResponse> customerResponseList = customerPage.getContent()
         .stream()
-        .map(CustomerService::toCustomerResponse)
+        .map(this::toCustomerResponse)
         .toList();
 
     return new PageImpl<>(

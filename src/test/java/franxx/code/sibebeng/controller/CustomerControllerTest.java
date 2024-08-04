@@ -7,10 +7,12 @@ import franxx.code.sibebeng.dto.PageableData;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
-import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
+import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
+import franxx.code.sibebeng.repository.VehicleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.MockMvcBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,10 +42,16 @@ class CustomerControllerTest {
   @Autowired
   private CustomerRepository customerRepository;
 
+  @Autowired
+  private VehicleRepository vehicleRepository;
+
   private Customer customer;
+
+  private Vehicle vehicle;
 
   @BeforeEach
   void setUp() {
+    vehicleRepository.deleteAll();
     customerRepository.deleteAll();
 
     objectMapper = objectMapper
@@ -58,6 +63,15 @@ class CustomerControllerTest {
     customer.setPhoneNumber("0123456789123");
     customer.setAddress("BGR");
     customerRepository.save(customer);
+
+    vehicle = new Vehicle();
+    vehicle.setCustomer(customer);
+    vehicle.setBrand("Toyota");
+    vehicle.setModel("Kijang");
+    vehicle.setLicensePlate("F 22 OO");
+    vehicle.setYear("2016");
+    vehicle.setColor("Black Blue");
+    vehicleRepository.save(vehicle);
   }
 
   @Test
@@ -144,21 +158,23 @@ class CustomerControllerTest {
     mockMvc.perform(
         get("/api/customers/" + customer.getId())
             .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
     ).andExpectAll(
         status().isOk()
     ).andDo(result -> {
-      WebResponse<CustomerDetailResponse, Void> response = objectMapper
+      WebResponse<CustomerResponse, Void> response = objectMapper
           .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
           });
 
       System.out.println(objectMapper.writeValueAsString(response));
+      assertThat(response.getErrors()).isNull();
+      assertThat(response.getData()).isNotNull();
+      assertThat(response.getData().getVehicles()).isNotNull();
 
-      assertNull(response.getErrors());
-      assertNotNull(response.getData());
-      assertEquals(Collections.emptyList(), response.getData().getVehicles());
-
-      assertEquals("BGR", response.getData().getAddress());
+      List<SimpleVehicleResponse> vehicles = response.getData().getVehicles();
+      assertThat(vehicles).isNotEmpty();
+      assertThat(vehicles).anyMatch(v -> "Toyota".equals(v.getBrand()));
+      assertThat(response.getData().getAddress()).isEqualTo("BGR");
+      assertThat(vehicles).extracting("model").contains("Kijang");
     });
 
   }
@@ -225,12 +241,39 @@ class CustomerControllerTest {
   }
 
   @Test
+  void deleteCustomerWithVehiclesShouldFail() throws Exception {
+    // Pre-condition
+    assertThat(customerRepository.existsById(customer.getId())).isTrue();
+    assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+
+    mockMvc.perform(
+        delete("/api/customers/" + customer.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isConflict()
+    ).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      });
+
+      System.out.println(objectMapper.writeValueAsString(response));
+      assertThat(response.getErrors()).isNotNull();
+      assertThat(response.getMessage()).isEqualTo("customer still has vehicles");
+
+      // Post-condition
+      assertThat(customerRepository.existsById(customer.getId())).isTrue();
+      assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+    });
+  }
+
+  @Test
   void deletedNotFound() throws Exception {
+
+    assertThat(customerRepository.existsById("not-found")).isFalse();
 
     mockMvc.perform(
         delete("/api/customers/not-found")
             .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
     ).andExpectAll(
         status().isNotFound()
     ).andDo(result -> {
@@ -241,6 +284,9 @@ class CustomerControllerTest {
       System.out.println(objectMapper.writeValueAsString(response));
       assertNotNull(response.getErrors());
       assertNull(response.getData());
+
+      assertThat(response.getMessage()).isEqualTo("customer not found");
+
       assertNotNull(response.getMessage());
 
     });
@@ -248,12 +294,16 @@ class CustomerControllerTest {
   }
 
   @Test
-  void deletedSuccess() throws Exception {
+  void deleteCustomerWithoutVehiclesShouldSucceed() throws Exception {
+    vehicleRepository.delete(vehicle);
+
+    // Pre-condition
+    assertThat(vehicleRepository.existsById(vehicle.getId())).isFalse();
+    assertThat(customerRepository.existsById(customer.getId())).isTrue();
 
     mockMvc.perform(
         delete("/api/customers/" + customer.getId())
             .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
     ).andExpectAll(
         status().isOk()
     ).andDo(result -> {
@@ -262,10 +312,12 @@ class CustomerControllerTest {
       });
 
       System.out.println(objectMapper.writeValueAsString(response));
-      assertNull(response.getErrors());
-      assertEquals("OK", response.getData());
-      assertNotNull(response.getMessage());
+      assertThat(response.getErrors()).isNull();
+      assertThat(response.getData()).isEqualTo("OK");
+      assertThat(response.getMessage()).isNotNull();
 
+      // Post-condition
+      assertThat(customerRepository.existsById(customer.getId())).isFalse();
     });
 
   }

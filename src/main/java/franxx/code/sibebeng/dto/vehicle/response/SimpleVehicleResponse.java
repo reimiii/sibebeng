@@ -10,12 +10,11 @@ import java.util.List;
 @Data @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleResponse {
+public class SimpleVehicleResponse {
   private String id;
   private String licensePlate;
   private String model;
   private String brand;
   private String year;
   private String color;
-  private List<String> strings;
 }

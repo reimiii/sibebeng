@@ -4,7 +4,6 @@ import franxx.code.sibebeng.dto.PageableData;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
-import franxx.code.sibebeng.dto.customer.response.CustomerDetailResponse;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -33,7 +30,7 @@ public class CustomerController {
     CustomerResponse customer = customerService.createCustomer(request);
 
     WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
-        .message("customer created successfully")
+        .message("customer added successfully")
         .data(customer)
         .build();
 
@@ -52,8 +49,8 @@ public class CustomerController {
 
     var customer = customerService.getCustomerDetail(id);
 
-    WebResponse<CustomerDetailResponse, Void> response = WebResponse.<CustomerDetailResponse, Void>builder()
-        .message("one customer found")
+    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
+        .message("customer retrieved successfully")
         .data(customer)
         .build();
 
@@ -111,7 +108,7 @@ public class CustomerController {
       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
       @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
   ) {
-    Page<CustomerResponse> customerResponses = customerService.searchCustomer(keyword, page, size);
+    Page<CustomerResponse> customerResponses = customerService.getsAndSearchCustomers(keyword, page, size);
 
     PageableData<CustomerResponse> pageableData = PageableData.<CustomerResponse>builder()
         .content(customerResponses.getContent())
@@ -125,7 +122,7 @@ public class CustomerController {
         .build();
 
     WebResponse<PageableData<CustomerResponse>, Void> response = WebResponse.<PageableData<CustomerResponse>, Void>builder()
-        .message("search completed successfully")
+        .message("customers retrieved successfully")
         .data(pageableData)
         .build();
 
