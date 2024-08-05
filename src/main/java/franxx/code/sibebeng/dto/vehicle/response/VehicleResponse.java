@@ -1,10 +1,12 @@
 package franxx.code.sibebeng.dto.vehicle.response;
 
+import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data @Builder
@@ -17,5 +19,5 @@ public class VehicleResponse {
   private String brand;
   private String year;
   private String color;
-  private List<String> strings;
+  private List<SimpleRepairResponse> repairs = new ArrayList<>();
 }
