@@ -8,11 +8,10 @@ import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController @RequiredArgsConstructor
 @RequestMapping(path = "/api/customers/{customerId}/vehicles")
@@ -61,6 +60,27 @@ public class VehicleController {
 
     var response = WebResponse.<SimpleVehicleResponse, Void>builder()
         .message("vehicle updated successfully")
+        .data(vehicle)
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(response);
+  }
+
+  @GetMapping(
+      path = "/{vehicleId}",
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> get(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId
+  ) {
+
+    var vehicle = vehicleService.getDetailVehicle(customerId, vehicleId);
+
+    var response = WebResponse.<VehicleResponse, Void>builder()
+        .message("vehicle retrieved successfully")
         .data(vehicle)
         .build();
 

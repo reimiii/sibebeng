@@ -5,7 +5,6 @@ import franxx.code.sibebeng.dto.vehicle.request.CreateVehicleRequest;
 import franxx.code.sibebeng.dto.vehicle.request.UpdateVehicleRequest;
 import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
-import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.repository.VehicleRepository;
@@ -105,5 +104,17 @@ public class VehicleService {
     vehicleRepository.save(vehicle);
 
     return toSimpleVehicleResponse(vehicle);
+  }
+
+  @Transactional(readOnly = true)
+  public VehicleResponse getDetailVehicle(String customerId, String vehicleId) {
+
+    var customer = customerRepository.findById(customerId)
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+
+    var vehicle = vehicleRepository.findByCustomerAndId(customer, vehicleId)
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "vehicle not found"));
+
+    return toVehicleResponse(vehicle);
   }
 }

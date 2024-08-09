@@ -198,4 +198,42 @@ class VehicleControllerTest {
 
     });
   }
+
+  @Test
+  void getVehicleNotFound() throws Exception {
+    mockMvc.perform(
+        get("/api/customers/" + customer.getId() + "/vehicles/invalid-id")
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isNotFound()
+    ).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(response.getData()).isNull();
+      assertThat(response.getMessage()).isEqualTo("vehicle not found");
+      assertThat(response.getErrors()).isEqualTo("404 NOT_FOUND");
+    });
+  }
+
+  @Test
+  void getVehicleSuccess() throws Exception {
+    mockMvc.perform(
+        get("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId())
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<VehicleResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(response.getData()).isNotNull();
+      assertThat(response.getData().getId()).isEqualTo(vehicle.getId());
+      assertThat(response.getData().getBrand()).isEqualTo(vehicle.getBrand());
+      assertThat(response.getData().getModel()).isEqualTo(vehicle.getModel());
+      assertThat(response.getData().getLicensePlate()).isEqualTo(vehicle.getLicensePlate());
+      assertThat(response.getData().getYear()).isEqualTo(vehicle.getYear());
+      assertThat(response.getData().getColor()).isEqualTo(vehicle.getColor());
+    });
+  }
 }
