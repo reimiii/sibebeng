@@ -9,8 +9,10 @@ import franxx.code.sibebeng.dto.vehicle.request.UpdateVehicleRequest;
 import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
+import franxx.code.sibebeng.entity.Repair;
 import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
+import franxx.code.sibebeng.repository.RepairRepository;
 import franxx.code.sibebeng.repository.VehicleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -46,12 +48,18 @@ class VehicleControllerTest {
   @Autowired
   private VehicleRepository vehicleRepository;
 
+  @Autowired
+  private RepairRepository repairRepository;
+
   private Customer customer;
 
   private Vehicle vehicle;
 
+  private Repair repair;
+
   @BeforeEach
   void setUp() {
+    repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
 
@@ -73,10 +81,17 @@ class VehicleControllerTest {
     vehicle.setYear("2016");
     vehicle.setColor("Black Blue");
     vehicleRepository.save(vehicle);
+
+    repair = new Repair();
+    repair.setVehicle(vehicle);
+    repair.setDescription("Engine Repair");
+    repair.setEntryDate(LocalDateTime.now());
+    repairRepository.save(repair);
   }
 
   @AfterEach
   void tearDown() {
+    repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
   }
@@ -236,4 +251,53 @@ class VehicleControllerTest {
       assertThat(response.getData().getColor()).isEqualTo(vehicle.getColor());
     });
   }
+
+  @Test
+  void deleteVehicleSuccess() throws Exception {
+    assertThat(customerRepository.existsById(customer.getId())).isTrue();
+    assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+
+    if (repairRepository.existsById(repair.getId())) {
+      repairRepository.delete(repair);
+    }
+
+    assertThat(repairRepository.existsById(repair.getId())).isFalse();
+
+    mockMvc.perform(
+        delete("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId())
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<String, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(response.getData()).isEqualTo("OK");
+      assertThat(response.getMessage()).isEqualTo("vehicle deleted successfully");
+
+      assertThat(vehicleRepository.existsById(vehicle.getId())).isFalse();
+    });
+  }
+
+  @Test
+  void deleteVehicleWithRepairsConflict() throws Exception {
+    mockMvc.perform(
+        delete("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId())
+            .accept(MediaType.APPLICATION_JSON)
+    ).andExpectAll(
+        status().isConflict()
+    ).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(response.getData()).isNull();
+      assertThat(response.getMessage()).isEqualTo("customer still has vehicles");
+      assertThat(response.getErrors()).isNotNull();
+      assertThat(response.getErrors()).isEqualTo("409 CONFLICT");
+      // Vehicle should still exist
+      assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+      assertThat(repairRepository.existsById(repair.getId())).isTrue();
+    });
+  }
+
 }

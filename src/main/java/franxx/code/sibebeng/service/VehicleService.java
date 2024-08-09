@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service @Transactional
@@ -65,6 +66,14 @@ public class VehicleService {
         .build();
   }
 
+  private Vehicle getVehicle(String customerId, String vehicleId) {
+    var customer = customerRepository.findById(customerId)
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+
+    return vehicleRepository.findByCustomerAndId(customer, vehicleId)
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "vehicle not found"));
+  }
+
   public SimpleVehicleResponse createVehicle(CreateVehicleRequest request) {
 
     var customer = customerRepository.findById(request.getCustomerId())
@@ -89,11 +98,7 @@ public class VehicleService {
 
     validationService.validateRequest(request);
 
-    var customer = customerRepository.findById(request.getCustomerId())
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
-
-    var vehicle = vehicleRepository.findByCustomerAndId(customer, request.getVehicleId())
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "vehicle not found"));
+    var vehicle = getVehicle(request.getCustomerId(), request.getVehicleId());
 
     vehicle.setLicensePlate(request.getLicensePlate());
     vehicle.setBrand(request.getBrand());
@@ -109,12 +114,19 @@ public class VehicleService {
   @Transactional(readOnly = true)
   public VehicleResponse getDetailVehicle(String customerId, String vehicleId) {
 
-    var customer = customerRepository.findById(customerId)
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
-
-    var vehicle = vehicleRepository.findByCustomerAndId(customer, vehicleId)
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "vehicle not found"));
+    var vehicle = getVehicle(customerId, vehicleId);
 
     return toVehicleResponse(vehicle);
+  }
+
+  public void deleteVehicle(String customerId, String vehicleId) {
+
+    var vehicle = getVehicle(customerId, vehicleId);
+
+    if (!vehicle.getRepairs().isEmpty()) {
+      throw new ResponseStatusException(CONFLICT, "customer still has vehicles");
+    }
+
+    vehicleRepository.delete(vehicle);
   }
 }

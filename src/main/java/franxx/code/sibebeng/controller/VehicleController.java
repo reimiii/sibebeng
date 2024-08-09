@@ -88,4 +88,25 @@ public class VehicleController {
         .status(HttpStatus.OK)
         .body(response);
   }
+
+  @DeleteMapping(
+      path = "/{vehicleId}",
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> delete(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId
+  ) {
+
+    vehicleService.deleteVehicle(customerId, vehicleId);
+
+    var response = WebResponse.<String, Void>builder()
+        .message("vehicle deleted successfully")
+        .data("OK")
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(response);
+  }
 }
