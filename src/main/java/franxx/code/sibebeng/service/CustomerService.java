@@ -3,6 +3,7 @@ package franxx.code.sibebeng.service;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
 import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.repository.CustomerRepository;
@@ -58,7 +59,17 @@ public class CustomerService {
         .build();
   }
 
-  public CustomerResponse createCustomer(CreateCustomerRequest request) {
+  private SimpleCustomerResponse toSimpleCustomerResponse(Customer customer) {
+    return SimpleCustomerResponse.builder()
+        .id(customer.getId())
+        .name(customer.getName())
+        .email(customer.getEmail())
+        .phoneNumber(customer.getPhoneNumber())
+        .address(customer.getAddress())
+        .build();
+  }
+
+  public SimpleCustomerResponse createCustomer(CreateCustomerRequest request) {
 
     validationService.validateRequest(request);
 
@@ -70,7 +81,7 @@ public class CustomerService {
 
     customerRepository.save(customer);
 
-    return toCustomerResponse(customer);
+    return toSimpleCustomerResponse(customer);
   }
 
   @Transactional(readOnly = true)
@@ -81,7 +92,7 @@ public class CustomerService {
     return toCustomerResponse(customer);
   }
 
-  public CustomerResponse updateCustomer(UpdateCustomerRequest request) {
+  public SimpleCustomerResponse updateCustomer(UpdateCustomerRequest request) {
 
     validationService.validateRequest(request);
 
@@ -95,7 +106,7 @@ public class CustomerService {
 
     customerRepository.save(customer);
 
-    return toCustomerResponse(customer);
+    return toSimpleCustomerResponse(customer);
   }
 
   public void deleteCustomer(String id) {

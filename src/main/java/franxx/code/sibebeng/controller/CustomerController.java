@@ -5,6 +5,7 @@ import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,9 +28,9 @@ public class CustomerController {
   public ResponseEntity<?> create(
       @RequestBody CreateCustomerRequest request
   ) {
-    CustomerResponse customer = customerService.createCustomer(request);
+    var customer = customerService.createCustomer(request);
 
-    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
+    var response = WebResponse.<SimpleCustomerResponse, Void>builder()
         .message("customer added successfully")
         .data(customer)
         .build();
@@ -49,7 +50,7 @@ public class CustomerController {
 
     var customer = customerService.getCustomerDetail(id);
 
-    WebResponse<CustomerResponse, Void> response = WebResponse.<CustomerResponse, Void>builder()
+    var response = WebResponse.<CustomerResponse, Void>builder()
         .message("customer retrieved successfully")
         .data(customer)
         .build();
@@ -71,7 +72,7 @@ public class CustomerController {
 
     request.setId(customerId);
     var customerResponse = customerService.updateCustomer(request);
-    var response = WebResponse.<CustomerResponse, Void>builder()
+    var response = WebResponse.<SimpleCustomerResponse, Void>builder()
         .message("customer updated successfully")
         .data(customerResponse)
         .build();
@@ -121,11 +122,10 @@ public class CustomerController {
         .totalElements(customerResponses.getTotalElements())
         .build();
 
-    WebResponse<PageableData<CustomerResponse>, Void> response = WebResponse.<PageableData<CustomerResponse>, Void>builder()
+    var response = WebResponse.<PageableData<CustomerResponse>, Void>builder()
         .message("customers retrieved successfully")
         .data(pageableData)
         .build();
-
 
     return ResponseEntity
         .status(HttpStatus.OK)

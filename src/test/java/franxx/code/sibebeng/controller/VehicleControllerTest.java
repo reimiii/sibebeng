@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -94,7 +95,7 @@ class VehicleControllerTest {
     ).andExpectAll(
         status().isBadRequest()
     ).andDo(result -> {
-      WebResponse<Void, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+      WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
       });
       System.out.println(objectMapper.writeValueAsString(response));
       assertThat(response.getErrors()).isNotEmpty();
@@ -102,6 +103,7 @@ class VehicleControllerTest {
 
     });
   }
+
   @Test
   void createSuccess() throws Exception {
     var request = CreateVehicleRequest.builder()

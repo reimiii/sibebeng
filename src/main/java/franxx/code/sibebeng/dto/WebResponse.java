@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WebResponse<T1, T2> {
+public class WebResponse<D, E> {
   private String message;
-  private T1 data;
-  private T2 errors;
+  private D data;
+  private E errors;
 }

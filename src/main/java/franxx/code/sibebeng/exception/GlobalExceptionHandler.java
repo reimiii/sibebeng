@@ -9,21 +9,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class ErrorController {
+public class GlobalExceptionHandler {
 
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<?> constraintViolation(ConstraintViolationException violationException) {
 
-    List<String> errors = violationException.getConstraintViolations().stream()
-        .map(ConstraintViolation::getMessage)
-        .collect(Collectors.toList());
+    Map<String, String> errors = violationException.getConstraintViolations()
+        .stream()
+        .collect(Collectors.toMap(
+            constraintViolation -> constraintViolation.getPropertyPath().toString(),
+            ConstraintViolation::getMessage
+        ));
 
-    WebResponse<Void, List<String>> response = WebResponse.<Void, List<String>>builder()
+    WebResponse<Void, Map<String, String>> response = WebResponse.<Void, Map<String, String>>builder()
         .message("validation errors")
         .errors(errors)
         .build();

@@ -8,6 +8,7 @@ import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
+import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
 import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Vehicle;
@@ -23,27 +24,22 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class CustomerControllerTest {
+@SpringBootTest @AutoConfigureMockMvc class CustomerControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  private CustomerRepository customerRepository;
+  @Autowired private CustomerRepository customerRepository;
 
-  @Autowired
-  private VehicleRepository vehicleRepository;
+  @Autowired private VehicleRepository vehicleRepository;
 
   private Customer customer;
 
@@ -54,8 +50,7 @@ class CustomerControllerTest {
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
 
-    objectMapper = objectMapper
-        .configure(SerializationFeature.INDENT_OUTPUT, true);
+    objectMapper = objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 
     customer = new Customer();
     customer.setName("Hilmi AM");
@@ -83,73 +78,50 @@ class CustomerControllerTest {
   @Test
   void createdBadRequest() throws Exception {
 
-    var request = CreateCustomerRequest.builder()
-        .name("mee")
-        .build();
+    var request = CreateCustomerRequest.builder().name("mee").build();
 
-    mockMvc.perform(
-        post("/api/customers")
+    mockMvc.perform(post("/api/customers")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request))
-    ).andExpectAll(
-        status().isBadRequest()
-    ).andDo(result -> {
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpectAll(status().isBadRequest()).andDo(result -> {
 
-      WebResponse<Void, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+          WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
-      System.out.println(objectMapper.writeValueAsString(response));
-      assertNotNull(response.getErrors());
-      assertNull(response.getData());
+          System.out.println(objectMapper.writeValueAsString(response));
+          assertNotNull(response.getErrors());
+          assertNull(response.getData());
 
-    });
+        });
 
   }
 
   @Test
   void createdSuccess() throws Exception {
 
-    var request = CreateCustomerRequest.builder()
-        .name("mee")
-        .email("me@mail.com")
-        .phoneNumber("05155341230")
-        .address("Bogor")
-        .build();
+    var request = CreateCustomerRequest.builder().name("mee").email("me@mail.com").phoneNumber("05155341230").address("Bogor").build();
 
-    mockMvc.perform(
-        post("/api/customers")
+    mockMvc.perform(post("/api/customers")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request))
-    ).andExpectAll(
-        status().isCreated()
-    ).andDo(result -> {
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpectAll(status().isCreated()).andDo(result -> {
 
-      WebResponse<CustomerResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+          WebResponse<SimpleCustomerResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
-      System.out.println(objectMapper.writeValueAsString(response));
-      assertNull(response.getErrors());
-      assertTrue(customerRepository.existsById(response.getData().getId()));
-      assertEquals("mee", response.getData().getName());
+          System.out.println(objectMapper.writeValueAsString(response));
+          assertNull(response.getErrors());
+          assertTrue(customerRepository.existsById(response.getData().getId()));
+          assertEquals("mee", response.getData().getName());
 
-    });
+        });
 
   }
 
   @Test
   void getNotFound() throws Exception {
-    mockMvc.perform(
-        get("/api/customers/23123123123")
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isNotFound()
-    ).andDo(result -> {
-      WebResponse<Void, String> response = objectMapper
-          .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-          });
+    mockMvc.perform(get("/api/customers/23123123123").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andExpectAll(status().isNotFound()).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
 
@@ -161,15 +133,8 @@ class CustomerControllerTest {
 
   @Test
   void getSuccess() throws Exception {
-    mockMvc.perform(
-        get("/api/customers/" + customer.getId())
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<CustomerResponse, Void> response = objectMapper
-          .readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-          });
+    mockMvc.perform(get("/api/customers/" + customer.getId()).accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<CustomerResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertThat(response.getErrors()).isNull();
@@ -188,22 +153,11 @@ class CustomerControllerTest {
   @Test
   void updateBadRequest() throws Exception {
 
-    var request = UpdateCustomerRequest.builder()
-        .name("mee")
-        .email("salah")
-        .build();
+    var request = UpdateCustomerRequest.builder().name("mee").email("salah").build();
 
-    mockMvc.perform(
-        put("/api/customers/" + customer.getId())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request))
-    ).andExpectAll(
-        status().isBadRequest()
-    ).andDo(result -> {
+    mockMvc.perform(put("/api/customers/" + customer.getId()).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request))).andExpectAll(status().isBadRequest()).andDo(result -> {
 
-      WebResponse<CustomerResponse, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertNotNull(response.getErrors());
@@ -216,27 +170,14 @@ class CustomerControllerTest {
   @Test
   void updateSuccess() throws Exception {
 
-    var request = UpdateCustomerRequest.builder()
-        .id("mwehehee") // oke ga masuk ke db
-        .name("Mee")
-        .email(customer.getEmail())
-        .phoneNumber(customer.getPhoneNumber())
-        .address("JKT")
-        .build();
+    var request = UpdateCustomerRequest.builder().id("mwehehee") // oke ga masuk ke db
+        .name("Mee").email(customer.getEmail()).phoneNumber(customer.getPhoneNumber()).address("JKT").build();
 
     System.out.println(objectMapper.writeValueAsString(request));
 
-    mockMvc.perform(
-        put("/api/customers/" + customer.getId())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request))
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
+    mockMvc.perform(put("/api/customers/" + customer.getId()).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request))).andExpectAll(status().isOk()).andDo(result -> {
 
-      WebResponse<CustomerResponse, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<SimpleCustomerResponse, List<String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertNull(response.getErrors());
@@ -252,15 +193,8 @@ class CustomerControllerTest {
     assertThat(customerRepository.existsById(customer.getId())).isTrue();
     assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
 
-    mockMvc.perform(
-        delete("/api/customers/" + customer.getId())
-            .accept(MediaType.APPLICATION_JSON)
-            .contentType(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isConflict()
-    ).andDo(result -> {
-      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(delete("/api/customers/" + customer.getId()).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andExpectAll(status().isConflict()).andDo(result -> {
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertThat(response.getErrors()).isNotNull();
@@ -277,15 +211,9 @@ class CustomerControllerTest {
 
     assertThat(customerRepository.existsById("not-found")).isFalse();
 
-    mockMvc.perform(
-        delete("/api/customers/not-found")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isNotFound()
-    ).andDo(result -> {
+    mockMvc.perform(delete("/api/customers/not-found").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isNotFound()).andDo(result -> {
 
-      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertNotNull(response.getErrors());
@@ -307,15 +235,9 @@ class CustomerControllerTest {
     assertThat(vehicleRepository.existsById(vehicle.getId())).isFalse();
     assertThat(customerRepository.existsById(customer.getId())).isTrue();
 
-    mockMvc.perform(
-        delete("/api/customers/" + customer.getId())
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
+    mockMvc.perform(delete("/api/customers/" + customer.getId()).accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
 
-      WebResponse<String, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<String, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
 
       System.out.println(objectMapper.writeValueAsString(response));
       assertThat(response.getErrors()).isNull();
@@ -339,70 +261,33 @@ class CustomerControllerTest {
       customerRepository.save(customer);
     }
 
-    mockMvc.perform(
-        get("/api/customers")
-            .param("keyword", "BGR")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(get("/api/customers").param("keyword", "BGR").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertEquals(1, response.getData().getNumberOfElements());
       assertEquals("Hilmi AM", response.getData().getContent().getFirst().getName());
     });
 
-    mockMvc.perform(
-        get("/api/customers")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(get("/api/customers").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertEquals(51, response.getData().getTotalElements());
     });
 
-    mockMvc.perform(
-        get("/api/customers")
-            .param("page", "1")
-            .param("size", "2")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(get("/api/customers").param("page", "1").param("size", "2").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertEquals(51, response.getData().getTotalElements());
     });
 
-    mockMvc.perform(
-        get("/api/customers")
-            .param("page", "2")
-            .param("size", "2")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(get("/api/customers").param("page", "2").param("size", "2").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertEquals(51, response.getData().getTotalElements());
     });
 
-    mockMvc.perform(
-        get("/api/customers")
-            .param("page", "26")
-            .param("size", "2")
-            .accept(MediaType.APPLICATION_JSON)
-    ).andExpectAll(
-        status().isOk()
-    ).andDo(result -> {
-      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+    mockMvc.perform(get("/api/customers").param("page", "26").param("size", "2").accept(MediaType.APPLICATION_JSON)).andExpectAll(status().isOk()).andDo(result -> {
+      WebResponse<PageableData<CustomerResponse>, ?> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertEquals(51, response.getData().getTotalElements());
     });
