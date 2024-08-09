@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.vehicle.request.CreateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.request.UpdateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Vehicle;
@@ -95,8 +97,7 @@ class VehicleControllerTest {
     ).andExpectAll(
         status().isBadRequest()
     ).andDo(result -> {
-      WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
       assertThat(response.getErrors()).isNotEmpty();
       assertThat(response.getData()).isNull();
@@ -124,8 +125,7 @@ class VehicleControllerTest {
     ).andExpectAll(
         status().isCreated()
     ).andDo(result -> {
-      WebResponse<VehicleResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-      });
+      WebResponse<SimpleVehicleResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
       System.out.println(objectMapper.writeValueAsString(response));
 
       assertThat(vehicleRepository.existsById(response.getData().getId())).isTrue();
@@ -135,6 +135,66 @@ class VehicleControllerTest {
       assertThat(response.getErrors()).isNull();
       assertThat(response.getData()).isNotNull();
       assertThat(response.getData().getBrand()).isEqualTo("Suzuki");
+
+    });
+  }
+
+  @Test
+  void updateSuccess() throws Exception {
+    var request = UpdateVehicleRequest.builder()
+        .licensePlate("F1122BB")
+        .brand("Honda")
+        .model("Civic")
+        .color("Pacman")
+        .year("2004")
+        .build();
+
+    assertThat(customerRepository.existsById(customer.getId())).isTrue();
+    assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+
+    mockMvc.perform(
+        put("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+    ).andExpectAll(
+        status().isOk()
+    ).andDo(result -> {
+      WebResponse<SimpleVehicleResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(vehicleRepository.existsById(response.getData().getId())).isTrue();
+
+      assertThat(response.getErrors()).isNull();
+      assertThat(response.getData()).isNotNull();
+      assertThat(response.getData().getBrand()).isNotEqualTo(vehicle.getBrand());
+
+    });
+  }
+
+  @Test
+  void updateBadRequest() throws Exception {
+    var request = UpdateVehicleRequest.builder()
+        .year("2004")
+        .build();
+
+    assertThat(customerRepository.existsById(customer.getId())).isTrue();
+    assertThat(vehicleRepository.existsById(vehicle.getId())).isTrue();
+
+    mockMvc.perform(
+        put("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId())
+            .accept(MediaType.APPLICATION_JSON)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+    ).andExpectAll(
+        status().isBadRequest()
+    ).andDo(result -> {
+      WebResponse<?, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+      System.out.println(objectMapper.writeValueAsString(response));
+
+      assertThat(response.getErrors()).isNotNull();
+      assertThat(response.getData()).isNull();
+      assertThat(response.getErrors()).containsKeys("color", "model", "brand");
 
     });
   }

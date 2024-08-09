@@ -2,6 +2,8 @@ package franxx.code.sibebeng.controller;
 
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.vehicle.request.CreateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.request.UpdateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.service.VehicleService;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +29,43 @@ public class VehicleController {
       @RequestBody CreateVehicleRequest request
   ) {
 
-    VehicleResponse vehicle = vehicleService.createVehicle(customerId, request);
+    request.setCustomerId(customerId);
 
-    WebResponse<VehicleResponse, Void> response = WebResponse.<VehicleResponse, Void>builder()
+    var vehicle = vehicleService.createVehicle(request);
+
+    var response = WebResponse.<SimpleVehicleResponse, Void>builder()
         .message("vehicle added successfully")
         .data(vehicle)
         .build();
 
     return ResponseEntity
         .status(HttpStatus.CREATED)
+        .body(response);
+  }
+
+  @PutMapping(
+      path = "/{vehicleId}",
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> update(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId,
+      @RequestBody UpdateVehicleRequest request
+  ) {
+
+    request.setCustomerId(customerId);
+    request.setVehicleId(vehicleId);
+
+    var vehicle = vehicleService.updateVehicle(request);
+
+    var response = WebResponse.<SimpleVehicleResponse, Void>builder()
+        .message("vehicle updated successfully")
+        .data(vehicle)
+        .build();
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
         .body(response);
   }
 }

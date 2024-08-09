@@ -2,6 +2,8 @@ package franxx.code.sibebeng.service;
 
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.dto.vehicle.request.CreateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.request.UpdateVehicleRequest;
+import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.dto.vehicle.response.VehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Vehicle;
@@ -53,9 +55,20 @@ public class VehicleService {
         .build();
   }
 
-  public VehicleResponse createVehicle(String customerId, CreateVehicleRequest request) {
+  private SimpleVehicleResponse toSimpleVehicleResponse(Vehicle vehicle) {
+    return SimpleVehicleResponse.builder()
+        .id(vehicle.getId())
+        .licensePlate(vehicle.getLicensePlate())
+        .brand(vehicle.getBrand())
+        .model(vehicle.getModel())
+        .year(vehicle.getYear())
+        .color(vehicle.getColor())
+        .build();
+  }
 
-    Customer customer = customerRepository.findById(customerId)
+  public SimpleVehicleResponse createVehicle(CreateVehicleRequest request) {
+
+    var customer = customerRepository.findById(request.getCustomerId())
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
     validationService.validateRequest(request);
@@ -70,6 +83,27 @@ public class VehicleService {
 
     vehicleRepository.save(vehicle);
 
-    return toVehicleResponse(vehicle);
+    return toSimpleVehicleResponse(vehicle);
+  }
+
+  public SimpleVehicleResponse updateVehicle(UpdateVehicleRequest request) {
+
+    validationService.validateRequest(request);
+
+    var customer = customerRepository.findById(request.getCustomerId())
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+
+    var vehicle = vehicleRepository.findByCustomerAndId(customer, request.getVehicleId())
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "vehicle not found"));
+
+    vehicle.setLicensePlate(request.getLicensePlate());
+    vehicle.setBrand(request.getBrand());
+    vehicle.setModel(request.getModel());
+    vehicle.setYear(request.getYear());
+    vehicle.setColor(request.getColor());
+
+    vehicleRepository.save(vehicle);
+
+    return toSimpleVehicleResponse(vehicle);
   }
 }

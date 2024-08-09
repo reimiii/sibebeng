@@ -10,10 +10,13 @@ import lombok.NoArgsConstructor;
 
 @Data @Builder @AllArgsConstructor
 @NoArgsConstructor
-public class CreateVehicleRequest {
+public class UpdateVehicleRequest {
 
   @JsonIgnore @NotBlank
   private String customerId;
+
+  @JsonIgnore @NotBlank
+  private String vehicleId;
 
   @NotBlank
   private String licensePlate;
