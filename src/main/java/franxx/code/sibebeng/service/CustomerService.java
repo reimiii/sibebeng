@@ -122,16 +122,16 @@ public class CustomerService {
   }
 
   @Transactional(readOnly = true)
-  public Page<CustomerResponse> getsAndSearchCustomers(
+  public Page<SimpleCustomerResponse> getsAndSearchCustomers(
       String keyword,
       Integer page,
       Integer size
   ) {
     PageRequest pageable = PageRequest.of(page, size);
     Page<Customer> customerPage = customerRepository.findAll(CustomerSpecification.containsTextInAttributes(keyword), pageable);
-    List<CustomerResponse> customerResponseList = customerPage.getContent()
+    List<SimpleCustomerResponse> customerResponseList = customerPage.getContent()
         .stream()
-        .map(this::toCustomerResponse)
+        .map(this::toSimpleCustomerResponse)
         .toList();
 
     return new PageImpl<>(

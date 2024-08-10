@@ -8,7 +8,6 @@ import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
 import franxx.code.sibebeng.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -109,9 +108,9 @@ public class CustomerController {
       @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
       @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
   ) {
-    Page<CustomerResponse> customerResponses = customerService.getsAndSearchCustomers(keyword, page, size);
+    var customerResponses = customerService.getsAndSearchCustomers(keyword, page, size);
 
-    PageableData<CustomerResponse> pageableData = PageableData.<CustomerResponse>builder()
+    var pageableData = PageableData.<SimpleCustomerResponse>builder()
         .content(customerResponses.getContent())
         .currentPage(customerResponses.getNumber())
         .currentSize(customerResponses.getSize())
@@ -122,7 +121,7 @@ public class CustomerController {
         .totalElements(customerResponses.getTotalElements())
         .build();
 
-    var response = WebResponse.<PageableData<CustomerResponse>, Void>builder()
+    var response = WebResponse.<PageableData<SimpleCustomerResponse>, Void>builder()
         .message("customers retrieved successfully")
         .data(pageableData)
         .build();

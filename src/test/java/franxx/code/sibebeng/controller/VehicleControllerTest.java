@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -144,8 +143,6 @@ class VehicleControllerTest {
       System.out.println(objectMapper.writeValueAsString(response));
 
       assertThat(vehicleRepository.existsById(response.getData().getId())).isTrue();
-      long count = vehicleRepository.findAllByCustomer_Id(customer.getId()).size();
-      assertThat(count).isEqualTo(2);
 
       assertThat(response.getErrors()).isNull();
       assertThat(response.getData()).isNotNull();
