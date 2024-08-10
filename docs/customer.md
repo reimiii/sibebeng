@@ -37,8 +37,7 @@ Response - 201 Created :
     "name": "string",
     "address": "string",
     "phoneNumber": "string",
-    "email": "email",
-    "vehicles": []
+    "email": "email"
   },
   "errors": null
 }
@@ -50,10 +49,10 @@ Response - 400 Bad Request :
 {
   "message": "validation errors",
   "data": null,
-  "errors": [
-    "name required",
-    "address required"
-  ]
+  "errors": {
+    "name": "name is required",
+    "email": "email is required"
+  }
 }
 ```
 
@@ -137,8 +136,7 @@ Response - 200 OK :
     "name": "string, update",
     "address": "string",
     "phoneNumber": "string",
-    "email": "email",
-    "vehicles": []
+    "email": "email"
   },
   "errors": null
 }
@@ -160,10 +158,10 @@ Response - 400 Bad Request :
 {
   "message": "validation errors",
   "data": null,
-  "errors": [
-    "name required",
-    "address required"
-  ]
+  "errors": {
+    "name": "name is required",
+    "email": "email is required"
+  }
 }
 ```
 
@@ -194,34 +192,14 @@ Response - 200 OK:
         "name": "Test name: 33",
         "email": "main@mail33.com",
         "phoneNumber": "1234567891012",
-        "address": "JKT: 33",
-        "vehicles": [
-          {
-            "id": 1,
-            "licensePlate": "AB123CD",
-            "brand": "Toyota",
-            "model": "Camry",
-            "year": 2018,
-            "color": "Red Blue"
-          }
-        ]
+        "address": "JKT: 33"
       },
       {
         "id": "1febd1d4-fb77-452e-82e3-e125e8cc8c01",
         "name": "Test name: 41",
         "email": "main@mail41.com",
         "phoneNumber": "1234567891012",
-        "address": "JKT: 41",
-        "vehicles": [
-          {
-            "id": 1,
-            "licensePlate": "AB123CD",
-            "brand": "Toyota",
-            "model": "Camry",
-            "year": 2018,
-            "color": "Blue"
-          }
-        ]
+        "address": "JKT: 41"
       }
     ],
     "currentPage": 0,

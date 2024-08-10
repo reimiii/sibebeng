@@ -39,8 +39,7 @@ Response - 201 Created :
     "brand": "Toyota",
     "model": "Camry",
     "year": 2018,
-    "color": "Blue",
-    "repairs": []
+    "color": "Blue"
   },
   "errors": null
 }
@@ -52,10 +51,10 @@ Response - 400 Bad Request :
 {
   "message": "validation errors",
   "data": null,
-  "errors": [
-    "brand required",
-    "color required"
-  ]
+  "errors": {
+    "brand": "brand is required",
+    "model": "model is required"
+  }
 }
 ```
 
@@ -140,8 +139,7 @@ Response - 200 OK :
     "brand": "Toyota",
     "model": "Camry",
     "year": 2018,
-    "color": "Blue",
-    "repairs": []
+    "color": "Blue"
   },
   "errors": null
 }
@@ -163,74 +161,10 @@ Response - 400 Bad Request :
 {
   "message": "validation errors",
   "data": null,
-  "errors": [
-    "brand required",
-    "color required"
-  ]
-}
-```
-
----
-
-### List Vehicles
-
-Request :
-
-- Method : GET
-- Endpoint : `/vehicles`
-- Header :
-    - Accept: application/json
-- Query Param :
-    - size : number,
-    - page : number
-
-Response - 200 OK:
-
-```json
-{
-  "message": "vehicles retrieved successfully",
-  "data": {
-    "content": [
-      {
-        "licensePlate": "AB123CD",
-        "brand": "Toyota",
-        "model": "Camry",
-        "year": 2018,
-        "color": "Blue",
-        "repairs": [
-          {
-            "id": "string",
-            "entryDate": "date time or instance",
-            "exitDate": "date time or instance",
-            "description": "string"
-          }
-        ]
-      },
-      {
-        "licensePlate": "AB123CD",
-        "brand": "Toyota",
-        "model": "Camry",
-        "year": 2018,
-        "color": "Blue",
-        "repairs": [
-          {
-            "id": "string",
-            "entryDate": "date time or instance",
-            "exitDate": "date time or instance",
-            "description": "string"
-          }
-        ]
-      }
-    ],
-    "currentPage": 0,
-    "currentSize": 2,
-    "hasNext": true,
-    "hasPrevious": false,
-    "numberOfElements": 2,
-    "totalPages": 26,
-    "totalElements": 51
-  },
-  "errors": null
+  "errors": {
+    "brand": "brand is required",
+    "model": "model is required"
+  }
 }
 ```
 
