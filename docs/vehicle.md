@@ -2,7 +2,7 @@
 
 ### Base URL
 
-`http://localhost:8181/api/customers/{customerId}/`
+`http://localhost:8181/api/customers/{customerId}`
 
 ## Endpoints
 

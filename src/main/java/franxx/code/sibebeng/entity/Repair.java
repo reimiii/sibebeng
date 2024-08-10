@@ -15,7 +15,6 @@ public class Repair {
   @Id @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
-  @NotNull
   @Column(name = "entry_date", nullable = false)
   private LocalDateTime entryDate;
 
