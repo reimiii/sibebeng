@@ -12,6 +12,7 @@ import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Repair;
 import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
+import franxx.code.sibebeng.repository.RepairDetailRepository;
 import franxx.code.sibebeng.repository.RepairRepository;
 import franxx.code.sibebeng.repository.VehicleRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -50,6 +51,9 @@ class VehicleControllerTest {
   @Autowired
   private RepairRepository repairRepository;
 
+  @Autowired
+  private RepairDetailRepository repairDetailRepository;
+
   private Customer customer;
 
   private Vehicle vehicle;
@@ -58,6 +62,7 @@ class VehicleControllerTest {
 
   @BeforeEach
   void setUp() {
+    repairDetailRepository.deleteAll();
     repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
@@ -90,6 +95,7 @@ class VehicleControllerTest {
 
   @AfterEach
   void tearDown() {
+    repairDetailRepository.deleteAll();
     repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();

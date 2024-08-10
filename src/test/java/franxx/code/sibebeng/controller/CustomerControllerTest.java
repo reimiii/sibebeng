@@ -9,10 +9,11 @@ import franxx.code.sibebeng.dto.customer.request.CreateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.request.UpdateCustomerRequest;
 import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
-import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
+import franxx.code.sibebeng.repository.RepairDetailRepository;
+import franxx.code.sibebeng.repository.RepairRepository;
 import franxx.code.sibebeng.repository.VehicleRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,12 +41,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
   @Autowired private VehicleRepository vehicleRepository;
 
+  @Autowired private RepairRepository repairRepository;
+
+  @Autowired private RepairDetailRepository repairDetailRepository;
+
   private Customer customer;
 
   private Vehicle vehicle;
 
   @BeforeEach
   void setUp() {
+    repairDetailRepository.deleteAll();
+    repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
 
@@ -71,6 +77,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
   @AfterEach
   void tearDown() {
+    repairDetailRepository.deleteAll();
+    repairRepository.deleteAll();
     vehicleRepository.deleteAll();
     customerRepository.deleteAll();
   }
