@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequiredArgsConstructor
 public class VehicleService {
 
+  private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
   private final ValidationService validationService;
   private final CustomerRepository customerRepository;
   private final VehicleRepository vehicleRepository;
@@ -37,8 +39,8 @@ public class VehicleService {
         .map(repair -> SimpleRepairResponse.builder()
             .id(repair.getId())
             .description(repair.getDescription())
-            .entryDate(repair.getEntryDate())
-            .exitDate(repair.getExitDate())
+            .entryDate(repair.getEntryDate().format(formatter))
+            .exitDate(repair.getExitDate() != null ? repair.getExitDate().format(formatter) : null)
             .build()
         ).toList();
   }
@@ -76,10 +78,10 @@ public class VehicleService {
 
   public SimpleVehicleResponse createVehicle(CreateVehicleRequest request) {
 
+    validationService.validateRequest(request);
+
     var customer = customerRepository.findById(request.getCustomerId())
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
-
-    validationService.validateRequest(request);
 
     var vehicle = new Vehicle();
     vehicle.setLicensePlate(request.getLicensePlate());
