@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
 import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
+import franxx.code.sibebeng.dto.repair.response.RepairResponse;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Repair;
@@ -23,7 +24,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -224,7 +224,7 @@ class RepairControllerTest {
     repairDetail.setRepair(repair);
     repairDetail.setRepairAction("test");
     repairDetail.setIssueDescription("yes");
-    repairDetail.setCost(BigDecimal.valueOf(100.00));
+    repairDetail.setPrice(10000L);
     repairDetailRepository.save(repairDetail);
 
     mockMvc.perform(delete("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
@@ -237,6 +237,72 @@ class RepairControllerTest {
 
           System.out.println(objectMapper.writeValueAsString(response));
 
+        });
+  }
+
+  @Test
+  void getRepairDetailsSuccess() throws Exception {
+    // Setup additional RepairDetail data
+    var repairDetail = new RepairDetail();
+    repairDetail.setRepair(repair);
+    repairDetail.setRepairAction("Service Mesin");
+    repairDetail.setIssueDescription("Mesin overheat");
+    repairDetail.setPrice(500000L);
+    repairDetailRepository.save(repairDetail);
+
+    assertThat(repairDetailRepository.existsById(repairDetail.getId())).isTrue();
+
+    mockMvc.perform(get("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(result -> {
+          WebResponse<RepairResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+
+          System.out.println(objectMapper.writeValueAsString(response));
+
+          assertThat(response.getData().getId()).isEqualTo(repair.getId());
+          assertThat(response.getData().getDescription()).isEqualTo(repair.getDescription());
+          assertThat(response.getData().getEntryDate()).isEqualTo(repair.getEntryDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+          assertThat(response.getData().getExitDate()).isNull(); // No exit date set initially
+
+          assertThat(response.getData().getRepairDetails()).hasSize(1);
+          assertThat(response.getData().getRepairDetails().get(0).getRepairAction()).isEqualTo("Service Mesin");
+          assertThat(response.getData().getRepairDetails().get(0).getIssueDescription()).isEqualTo("Mesin overheat");
+          assertThat(response.getData().getRepairDetails().get(0).getPrice()).isEqualTo(500000L);
+        });
+  }
+
+  @Test
+  void getRepairSuccessWithoutRepairDetails() throws Exception {
+    mockMvc.perform(get("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(result -> {
+          WebResponse<RepairResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          System.out.println(objectMapper.writeValueAsString(response));
+
+          assertThat(response.getMessage()).isEqualTo("repair retrieved successfully");
+
+          assertThat(response.getData().getId()).isEqualTo(repair.getId());
+          assertThat(response.getData().getDescription()).isEqualTo(repair.getDescription());
+          assertThat(response.getData().getEntryDate()).isEqualTo(repair.getEntryDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+          assertThat(response.getData().getExitDate()).isNull();
+          assertThat(response.getData().getRepairDetails()).isEmpty();
+        });
+  }
+
+  @Test
+  void getRepairFailsWithInvalidRepairId() throws Exception {
+    String invalidRepairId = "invalid-repair-id";
+
+    mockMvc.perform(get("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + invalidRepairId)
+            .accept(APPLICATION_JSON))
+        .andExpect(status().isNotFound()) // Harusnya statusnya 404
+        .andDo(result -> {
+          WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          System.out.println(objectMapper.writeValueAsString(response));
+
+          assertThat(response.getMessage()).isEqualTo("Repair not found");
         });
   }
 }

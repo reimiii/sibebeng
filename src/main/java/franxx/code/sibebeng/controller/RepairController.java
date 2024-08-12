@@ -3,6 +3,7 @@ package franxx.code.sibebeng.controller;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
 import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
+import franxx.code.sibebeng.dto.repair.response.RepairResponse;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.service.RepairService;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,10 @@ public class RepairController {
         .ok(response);
   }
 
-  @DeleteMapping(path = "/{repairId}")
+  @DeleteMapping(
+      path = "/{repairId}",
+      produces = APPLICATION_JSON_VALUE
+  )
   public ResponseEntity<?> delete(
       @PathVariable(name = "customerId") String customerId,
       @PathVariable(name = "vehicleId") String vehicleId,
@@ -80,6 +84,26 @@ public class RepairController {
     var response = WebResponse.<String, Void>builder()
         .message("repair deleted successfully")
         .data("OK")
+        .build();
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping(
+      path = "/{repairId}",
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> get(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId,
+      @PathVariable(name = "repairId") String repairId
+  ) {
+
+    var repairDetail = repairService.getDetailRepair(customerId, vehicleId, repairId);
+
+    var response = WebResponse.<RepairResponse, Void>builder()
+        .message("repair retrieved successfully")
+        .data(repairDetail)
         .build();
 
     return ResponseEntity.ok(response);

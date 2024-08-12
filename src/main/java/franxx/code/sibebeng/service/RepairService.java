@@ -2,12 +2,14 @@ package franxx.code.sibebeng.service;
 
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
 import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
+import franxx.code.sibebeng.dto.repair.response.RepairResponse;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
+import franxx.code.sibebeng.dto.repairdetail.response.RepairDetailResponse;
 import franxx.code.sibebeng.entity.Repair;
+import franxx.code.sibebeng.entity.RepairDetail;
 import franxx.code.sibebeng.repository.RepairRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 
 @Service @Transactional
 @RequiredArgsConstructor
@@ -23,6 +27,34 @@ public class RepairService {
   private final ValidationService validationService;
   private final EntityFinderService entityFinderService;
   private final RepairRepository repairRepository;
+
+  private List<RepairDetailResponse> toRepairDetailsResponse(List<RepairDetail> repairDetails) {
+    return repairDetails.stream()
+        .map(repairDetail -> RepairDetailResponse.builder()
+            .id(repairDetail.getId())
+            .issueDescription(repairDetail.getIssueDescription())
+            .repairAction(repairDetail.getRepairAction())
+            .status(repairDetail.getStatusPayment().name())
+            .price(repairDetail.getPrice())
+            .build())
+        .toList();
+  }
+
+  private RepairResponse toRepairResponse(Repair repair) {
+    return RepairResponse.builder()
+        .id(repair.getId())
+        .entryDate(repair.getEntryDate().format(formatter))
+        .exitDate(
+            repair.getExitDate() != null
+                ? repair.getExitDate().format(formatter)
+                : null
+        )
+        .description(repair.getDescription())
+        .repairDetails(
+            this.toRepairDetailsResponse(repair.getRepairDetails())
+        )
+        .build();
+  }
 
   private SimpleRepairResponse toSimpleRepairResponse(Repair repair) {
     return SimpleRepairResponse.builder()
@@ -97,6 +129,14 @@ public class RepairService {
     }
 
     repairRepository.delete(repair);
+  }
+
+  @Transactional(readOnly = true)
+  public RepairResponse getDetailRepair(String customerId, String vehicleId, String repairId) {
+
+    var repair = entityFinderService.findRepair(customerId, vehicleId, repairId);
+
+    return toRepairResponse(repair);
   }
 
 }

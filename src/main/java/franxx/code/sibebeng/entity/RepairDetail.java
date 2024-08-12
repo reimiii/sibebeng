@@ -17,7 +17,7 @@ public class RepairDetail {
   @Column(name = "repair_action")
   private String repairAction;
 
-  private BigDecimal cost;
+  private Long price;
 
   @Enumerated(EnumType.STRING)
   private StatusPayment statusPayment = StatusPayment.UNPAID;
