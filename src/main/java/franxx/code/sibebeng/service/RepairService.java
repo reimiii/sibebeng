@@ -4,13 +4,14 @@ import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
 import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.entity.Repair;
-import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.repository.RepairRepository;
-import franxx.code.sibebeng.repository.VehicleRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -83,4 +84,19 @@ public class RepairService {
 
     return toSimpleRepairResponse(repair);
   }
+
+  public void deleteRepair(String customerId, String vehicleId, String repairId) {
+
+    var repair = entityFinderService.findRepair(customerId, vehicleId, repairId);
+
+    if (!repair.getRepairDetails().isEmpty()) {
+      throw new ResponseStatusException(
+          HttpStatus.CONFLICT,
+          "Cannot delete Repair, as it is still linked to existing Repair Details."
+      );
+    }
+
+    repairRepository.delete(repair);
+  }
+
 }

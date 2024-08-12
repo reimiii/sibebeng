@@ -67,4 +67,21 @@ public class RepairController {
     return ResponseEntity
         .ok(response);
   }
+
+  @DeleteMapping(path = "/{repairId}")
+  public ResponseEntity<?> delete(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId,
+      @PathVariable(name = "repairId") String repairId
+  ) {
+
+    repairService.deleteRepair(customerId, vehicleId, repairId);
+
+    var response = WebResponse.<String, Void>builder()
+        .message("repair deleted successfully")
+        .data("OK")
+        .build();
+
+    return ResponseEntity.ok(response);
+  }
 }

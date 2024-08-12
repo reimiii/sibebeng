@@ -9,6 +9,7 @@ import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Repair;
+import franxx.code.sibebeng.entity.RepairDetail;
 import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.repository.RepairDetailRepository;
@@ -22,15 +23,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -199,4 +201,42 @@ class RepairControllerTest {
         });
   }
 
+  @Test
+  void deleteRepairSuccess() throws Exception {
+    mockMvc.perform(delete("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(result -> {
+          WebResponse<String, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          assertThat(response.getMessage()).isEqualTo("repair deleted successfully");
+          assertThat(response.getData()).isEqualTo("OK");
+          assertThat(repairRepository.existsById(repair.getId())).isFalse(); // ensure repair is deleted
+
+          System.out.println(objectMapper.writeValueAsString(response));
+
+        });
+  }
+
+  @Test
+  void deleteRepairFailsDueToDataIntegrity() throws Exception {
+    // Adding repair details to cause integrity violation
+    var repairDetail = new RepairDetail();
+    repairDetail.setRepair(repair);
+    repairDetail.setRepairAction("test");
+    repairDetail.setIssueDescription("yes");
+    repairDetail.setCost(BigDecimal.valueOf(100.00));
+    repairDetailRepository.save(repairDetail);
+
+    mockMvc.perform(delete("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON))
+        .andExpect(status().isConflict())
+        .andDo(result -> {
+          WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          assertThat(response.getMessage()).isEqualTo("Cannot delete Repair, as it is still linked to existing Repair Details.");
+          assertThat(response.getErrors()).isEqualTo(CONFLICT.toString());
+
+          System.out.println(objectMapper.writeValueAsString(response));
+
+        });
+  }
 }

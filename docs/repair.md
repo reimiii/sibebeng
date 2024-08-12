@@ -104,7 +104,7 @@ Response - 404 Not Found :
 
 Request :
 
-- Method : PUT
+- Method : PATCH
 - Endpoint : `/repairs/{repairId}`
 - Header :
     - Content-Type: application/json
@@ -152,7 +152,7 @@ Response - 400 Bad Request :
   "message": "validation errors",
   "data": null,
   "errors": {
-    "description": "required"
+    "exitDate": "not valid time"
   }
 }
 ```
