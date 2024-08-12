@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
+import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.entity.Customer;
 import franxx.code.sibebeng.entity.Repair;
@@ -19,20 +20,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.jupiter.api.Assertions.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -92,7 +90,7 @@ class RepairControllerTest {
     repair = new Repair();
     repair.setVehicle(vehicle);
     repair.setDescription("Engine Repair Test");
-    repair.setEntryDate(LocalDateTime.now());
+    repair.setEntryDate(LocalDateTime.parse("2024-08-11T08:00:00"));
     repairRepository.save(repair);
   }
 
@@ -133,6 +131,7 @@ class RepairControllerTest {
     assertDoesNotThrow(() -> {
       LocalDateTime parsedDateTime = LocalDateTime.parse(validDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
       System.out.println(parsedDateTime);
+      assertThat(parsedDateTime).isInstanceOf(LocalDateTime.class);
     });
 
     var request = CreateRepairRequest.builder()
@@ -155,4 +154,49 @@ class RepairControllerTest {
         });
 
   }
+
+  @Test
+  void updateRepairInvalidDateFormat() throws Exception {
+    var request = UpdateRepairRequest.builder()
+        .entryDate("2024-08-11T09:46:4")
+        .exitDate("invalid-date-format")
+        .description("Service machine repair")
+        .build();
+
+    mockMvc.perform(patch("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON)
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpectAll(status().isBadRequest())
+        .andDo(result -> {
+          WebResponse<Void, Map<String, String>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          System.out.println(objectMapper.writeValueAsString(response));
+          assertThat(response.getErrors()).containsKey("exitDate");
+        });
+  }
+
+  @Test
+  void updatePartialSuccess() throws Exception {
+    var validExitDate = "2024-08-12T08:00:00";
+
+    var request = UpdateRepairRequest.builder()
+        .exitDate(validExitDate)
+        .build();
+
+    mockMvc.perform(patch("/api/customers/" + customer.getId() + "/vehicles/" + vehicle.getId() + "/repairs/" + repair.getId())
+            .accept(APPLICATION_JSON)
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpectAll(status().isOk())
+        .andDo(result -> {
+          WebResponse<SimpleRepairResponse, Void> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+          System.out.println(objectMapper.writeValueAsString(response));
+
+          // Assert that the changes were applied correctly
+          var updatedRepair = repairRepository.findById(repair.getId()).orElseThrow();
+          assertThat(updatedRepair.getExitDate()).isEqualTo(LocalDateTime.parse(validExitDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+          assertThat(response.getData().getExitDate()).isEqualTo(validExitDate);
+        });
+  }
+
 }

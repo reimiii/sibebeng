@@ -2,6 +2,7 @@ package franxx.code.sibebeng.controller;
 
 import franxx.code.sibebeng.dto.WebResponse;
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
+import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.service.RepairService;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,31 @@ public class RepairController {
     return ResponseEntity
         .status(CREATED)
         .body(response);
+  }
+
+  @PatchMapping(
+      path = "/{repairId}",
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<?> update(
+      @PathVariable(name = "customerId") String customerId,
+      @PathVariable(name = "vehicleId") String vehicleId,
+      @PathVariable(name = "repairId") String repairId,
+      @RequestBody UpdateRepairRequest request
+  ) {
+
+    request.setCustomerId(customerId);
+    request.setVehicleId(vehicleId);
+    request.setRepairId(repairId);
+
+    var repair = repairService.updateRepair(request);
+    var response = WebResponse.<SimpleRepairResponse, Void>builder()
+        .message("repair updated successfully")
+        .data(repair)
+        .build();
+
+    return ResponseEntity
+        .ok(response);
   }
 }

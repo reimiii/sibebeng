@@ -1,6 +1,7 @@
 package franxx.code.sibebeng.service;
 
 import franxx.code.sibebeng.dto.repair.request.CreateRepairRequest;
+import franxx.code.sibebeng.dto.repair.request.UpdateRepairRequest;
 import franxx.code.sibebeng.dto.repair.response.SimpleRepairResponse;
 import franxx.code.sibebeng.entity.Repair;
 import franxx.code.sibebeng.repository.CustomerRepository;
@@ -20,8 +21,6 @@ public class RepairService {
   private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
   private final ValidationService validationService;
   private final EntityFinderService entityFinderService;
-  private final CustomerRepository customerRepository;
-  private final VehicleRepository vehicleRepository;
   private final RepairRepository repairRepository;
 
   private SimpleRepairResponse toSimpleRepairResponse(Repair repair) {
@@ -47,7 +46,6 @@ public class RepairService {
 
     var repair = new Repair();
     repair.setVehicle(vehicle);
-
     repair.setEntryDate(LocalDateTime.parse(request.getEntryDate(), formatter));
     repair.setExitDate(
         request.getExitDate() != null
@@ -55,6 +53,31 @@ public class RepairService {
             : null
     );
     repair.setDescription(request.getDescription());
+
+    repairRepository.save(repair);
+
+    return toSimpleRepairResponse(repair);
+  }
+
+  public SimpleRepairResponse updateRepair(UpdateRepairRequest request) {
+
+    validationService.validateRequest(request);
+
+    var repair = entityFinderService.findRepair(
+        request.getCustomerId(), request.getVehicleId(), request.getRepairId()
+    );
+
+    if (request.getEntryDate() != null) {
+      repair.setEntryDate(LocalDateTime.parse(request.getEntryDate(), formatter));
+    }
+
+    if (request.getExitDate() != null) {
+      repair.setExitDate(LocalDateTime.parse(request.getExitDate(), formatter));
+    }
+
+    if (request.getDescription() != null) {
+      repair.setDescription(request.getDescription());
+    }
 
     repairRepository.save(repair);
 
