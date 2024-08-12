@@ -302,7 +302,7 @@ class RepairControllerTest {
           WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
           System.out.println(objectMapper.writeValueAsString(response));
 
-          assertThat(response.getMessage()).isEqualTo("Repair not found");
+          assertThat(response.getMessage()).isEqualTo("repair not found");
         });
   }
 }
