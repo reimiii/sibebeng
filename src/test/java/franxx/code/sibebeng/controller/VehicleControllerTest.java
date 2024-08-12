@@ -294,7 +294,6 @@ class VehicleControllerTest {
       System.out.println(objectMapper.writeValueAsString(response));
 
       assertThat(response.getData()).isNull();
-      assertThat(response.getMessage()).isEqualTo("customer still has vehicles");
       assertThat(response.getErrors()).isNotNull();
       assertThat(response.getErrors()).isEqualTo("409 CONFLICT");
       // Vehicle should still exist

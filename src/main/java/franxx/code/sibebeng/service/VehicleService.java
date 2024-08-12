@@ -126,7 +126,10 @@ public class VehicleService {
     var vehicle = getVehicle(customerId, vehicleId);
 
     if (!vehicle.getRepairs().isEmpty()) {
-      throw new ResponseStatusException(CONFLICT, "customer still has vehicles");
+      throw new ResponseStatusException(
+          CONFLICT,
+          "cannot delete vehicle, as it is still linked to existing repairs."
+      );
     }
 
     vehicleRepository.delete(vehicle);

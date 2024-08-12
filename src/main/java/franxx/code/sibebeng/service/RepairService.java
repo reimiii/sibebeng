@@ -124,7 +124,7 @@ public class RepairService {
     if (!repair.getRepairDetails().isEmpty()) {
       throw new ResponseStatusException(
           HttpStatus.CONFLICT,
-          "Cannot delete Repair, as it is still linked to existing Repair Details."
+          "cannot delete repair, as it is still linked to existing repair details."
       );
     }
 

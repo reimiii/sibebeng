@@ -232,7 +232,7 @@ class RepairControllerTest {
         .andExpect(status().isConflict())
         .andDo(result -> {
           WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
-          assertThat(response.getMessage()).isEqualTo("Cannot delete Repair, as it is still linked to existing Repair Details.");
+          assertThat(response.getMessage()).isEqualTo("cannot delete repair, as it is still linked to existing repair details.");
           assertThat(response.getErrors()).isEqualTo(CONFLICT.toString());
 
           System.out.println(objectMapper.writeValueAsString(response));

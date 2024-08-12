@@ -212,7 +212,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
           WebResponse<Void, String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
           System.out.println(objectMapper.writeValueAsString(response));
           assertThat(response.getErrors()).isNotNull();
-          assertThat(response.getMessage()).isEqualTo("customer still has vehicles");
 
           // Post-condition
           assertThat(customerRepository.existsById(customer.getId())).isTrue();

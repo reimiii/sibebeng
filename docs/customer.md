@@ -249,7 +249,7 @@ Response - 409 Conflict :
 
 ```json 
 {
-  "message": "customer still has vehicles",
+  "message": "cannot delete customer, as it is still linked to existing vehicle.",
   "data": null,
   "errors": "409 CONFLICT"
 }

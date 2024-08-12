@@ -79,8 +79,8 @@ Response - 200 OK :
         "id": "uuid",
         "issueDescription": "string",
         "repairAction": "string",
-        "cost": 11022,
-        "status": "string"
+        "status": "string",
+        "price": 11022
       }
     ]
   },
@@ -192,7 +192,7 @@ Response - 409 Conflict :
 
 ```json 
 {
-  "message": "repair still has repair details",
+  "message": "cannot delete repair, as it is still linked to existing repair details.",
   "data": null,
   "errors": "409 CONFLICT"
 }

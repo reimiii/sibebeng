@@ -115,7 +115,10 @@ public class CustomerService {
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
 
     if (!customer.getVehicles().isEmpty()) {
-      throw new ResponseStatusException(CONFLICT, "customer still has vehicles");
+      throw new ResponseStatusException(
+          CONFLICT,
+          "cannot delete customer, as it is still linked to existing vehicles."
+      );
     }
 
     customerRepository.delete(customer);

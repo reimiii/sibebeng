@@ -203,7 +203,7 @@ Response - 409 Conflict :
 
 ```json 
 {
-  "message": "vehicle still has repairs",
+  "message": "cannot delete vehicle, as it is still linked to existing repairs.",
   "data": null,
   "errors": "409 CONFLICT"
 }
