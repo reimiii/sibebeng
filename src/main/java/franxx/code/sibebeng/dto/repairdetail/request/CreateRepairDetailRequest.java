@@ -28,7 +28,7 @@ public class CreateRepairDetailRequest {
   private String repairAction;
 
   @NotBlank @Pattern(regexp = "PAID|UNPAID|CANCELED", message = "Invalid status payment")
-  private String status;
+  private String status = "UNPAID";
 
   @NotBlank @Min(0)
   private Long price;
