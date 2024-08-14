@@ -1,11 +1,10 @@
-sistem informasi untuk bengkel (mobil/motor)
+restful api untuk management bengkel (mobil/motor)
 
 di pakai untuk mencatat informasi seputar pelanggan, kendaraan pelanggan, kapan masuk ke bengkel dan kapan keluar dari bengkel
 
-untuk saat ini itu saja..
 
 jadi ada table `customers` yang mempunyai banyak `vehicle`  
-biasanya mobil kalo ke bengkel pasti punya penyakit yang mau di benerin `repairs` untuk catet kapan dateng kapan keluar dan `repair_details` untk detail dari perbaikan nya
+biasanya mobil kalo ke bengkel pasti punya penyakit yang mau di benerin `repairs` untuk catet kapan dateng kapan keluar, serta jenis perbaikan yang akan di lakukan dan `repair_details` untk detail dari perbaikan nya
 
 kira kira seperti ini schema db nya
 
