@@ -9,8 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @Builder @AllArgsConstructor
-@NoArgsConstructor
+@Data @Builder @AllArgsConstructor @NoArgsConstructor
 public class CreateRepairDetailRequest {
   @JsonIgnore @NotBlank
   private String customerId;
@@ -27,9 +26,10 @@ public class CreateRepairDetailRequest {
   @NotBlank
   private String repairAction;
 
-  @NotBlank @Pattern(regexp = "PAID|UNPAID|CANCELED", message = "Invalid status payment")
+  @Builder.Default
+  @Pattern(regexp = "PAID|UNPAID|CANCELED", message = "Invalid status payment")
   private String status = "UNPAID";
 
-  @NotBlank @Min(0)
+  @Min(0)
   private Long price;
 }
