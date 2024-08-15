@@ -7,6 +7,9 @@ Fitur:
 - Validasi data menggunakan Hibernate Validator untuk memastikan integritas dan validitas input.
 - Penggunaan DTO (Data Transfer Object) untuk memisahkan layer data dan bisnis.
 - Pengujian unit dan integrasi untuk memastikan kualitas kode dan fungsionalitas aplikasi.
+
+
+
   Teknologi:
 - **Spring Boot** untuk pembuatan aplikasi RESTful.
 - **Spring Data JPA/Hibernate** untuk manajemen data dan ORM.
