@@ -9,8 +9,7 @@ Fitur:
 - Pengujian unit dan integrasi untuk memastikan kualitas kode dan fungsionalitas aplikasi.
 
 
-
-  Teknologi:
+Teknologi:
 - **Spring Boot** untuk pembuatan aplikasi RESTful.
 - **Spring Data JPA/Hibernate** untuk manajemen data dan ORM.
 - **Lombok** untuk mengurangi boilerplate code dan meningkatkan keterbacaan.
@@ -20,7 +19,7 @@ Fitur:
 - **RESTful Web Services** untuk komunikasi antar sistem.
 
 
-  Hasil:
+Hasil:
 - API ini memungkinkan integrasi yang mudah dengan frontend dan sistem lain.
-- Mempercepat pengelolaan operasional harian bengkel dengan menyediakan endpoint yang efisien dan aman.
+- Mempercepat pengelolaan operasional harian bengkel dengan menyediakan endpoint yang efisien.
 - Memudahkan pemeliharaan dan pengembangan berkat struktur kode yang terorganisir dan diuji secara menyeluruh.
