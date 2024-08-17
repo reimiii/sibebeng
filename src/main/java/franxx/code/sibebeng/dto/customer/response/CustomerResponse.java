@@ -18,5 +18,7 @@ public class CustomerResponse {
   private String email;
   private String phoneNumber;
   private String address;
+
+  @Builder.Default
   private List<SimpleVehicleResponse> vehicles = new ArrayList<>();
 }

@@ -28,9 +28,8 @@ public class UpdateRepairDetailRequest {
 
   private String repairAction;
 
-  @Builder.Default
   @Pattern(regexp = "PAID|UNPAID|CANCELED", message = "Invalid status payment")
-  private String status = "UNPAID";
+  private String status;
 
   @Min(0)
   private Long price;

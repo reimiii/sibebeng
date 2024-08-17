@@ -19,5 +19,7 @@ public class VehicleResponse {
   private String brand;
   private String year;
   private String color;
+
+  @Builder.Default
   private List<SimpleRepairResponse> repairs = new ArrayList<>();
 }

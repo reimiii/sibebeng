@@ -35,8 +35,8 @@ public class RepairService {
             .repairAction(repairDetail.getRepairAction())
             .status(repairDetail.getStatusPayment().name())
             .price(repairDetail.getPrice())
-            .build())
-        .toList();
+            .build()
+        ).toList();
   }
 
   private RepairResponse toRepairResponse(Repair repair) {
@@ -51,8 +51,7 @@ public class RepairService {
         .description(repair.getDescription())
         .repairDetails(
             this.toRepairDetailsResponse(repair.getRepairDetails())
-        )
-        .build();
+        ).build();
   }
 
   private SimpleRepairResponse toSimpleRepairResponse(Repair repair) {

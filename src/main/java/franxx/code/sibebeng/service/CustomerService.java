@@ -6,6 +6,7 @@ import franxx.code.sibebeng.dto.customer.response.CustomerResponse;
 import franxx.code.sibebeng.dto.customer.response.SimpleCustomerResponse;
 import franxx.code.sibebeng.dto.vehicle.response.SimpleVehicleResponse;
 import franxx.code.sibebeng.entity.Customer;
+import franxx.code.sibebeng.entity.Vehicle;
 import franxx.code.sibebeng.repository.CustomerRepository;
 import franxx.code.sibebeng.service.validation.ValidationService;
 import franxx.code.sibebeng.specification.CustomerSpecification;
@@ -27,16 +28,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequiredArgsConstructor
 public class CustomerService {
 
+  private final EntityFinderService entityFinderService;
   private final CustomerRepository customerRepository;
-
   private final ValidationService validationService;
 
-  private static List<SimpleVehicleResponse> getSimpleVehicleResponses(Customer customer) {
-    if (customer.getVehicles().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return customer.getVehicles().stream()
+  private List<SimpleVehicleResponse> toSimpleVehicleResponse(List<Vehicle> vehicles) {
+    return vehicles.stream()
         .map(vehicle -> SimpleVehicleResponse.builder()
             .id(vehicle.getId())
             .brand(vehicle.getBrand())
@@ -55,8 +52,9 @@ public class CustomerService {
         .email(customer.getEmail())
         .phoneNumber(customer.getPhoneNumber())
         .address(customer.getAddress())
-        .vehicles(getSimpleVehicleResponses(customer))
-        .build();
+        .vehicles(
+            this.toSimpleVehicleResponse(customer.getVehicles())
+        ).build();
   }
 
   private SimpleCustomerResponse toSimpleCustomerResponse(Customer customer) {
@@ -86,8 +84,7 @@ public class CustomerService {
 
   @Transactional(readOnly = true)
   public CustomerResponse getCustomerDetail(String id) {
-    Customer customer = customerRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+    var customer = entityFinderService.findCustomer(id);
 
     return toCustomerResponse(customer);
   }
@@ -96,8 +93,7 @@ public class CustomerService {
 
     validationService.validateRequest(request);
 
-    var customer = customerRepository.findById(request.getId())
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+    var customer = entityFinderService.findCustomer(request.getId());
 
     customer.setName(request.getName());
     customer.setEmail(request.getEmail());
@@ -111,8 +107,7 @@ public class CustomerService {
 
   public void deleteCustomer(String id) {
 
-    var customer = customerRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "customer not found"));
+    var customer = entityFinderService.findCustomer(id);
 
     if (!customer.getVehicles().isEmpty()) {
       throw new ResponseStatusException(
@@ -131,7 +126,11 @@ public class CustomerService {
       Integer size
   ) {
     PageRequest pageable = PageRequest.of(page, size);
-    Page<Customer> customerPage = customerRepository.findAll(CustomerSpecification.containsTextInAttributes(keyword), pageable);
+
+    Page<Customer> customerPage = customerRepository.findAll(
+        CustomerSpecification.containsTextInAttributes(keyword), pageable
+    );
+
     List<SimpleCustomerResponse> customerResponseList = customerPage.getContent()
         .stream()
         .map(this::toSimpleCustomerResponse)

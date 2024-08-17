@@ -18,6 +18,7 @@ public class RepairResponse {
   private String entryDate;
   private String exitDate;
 
+  @Builder.Default
   private List<RepairDetailResponse> repairDetails = new ArrayList<>();
 
 }
