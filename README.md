@@ -1,3 +1,5 @@
+Docs: API Spec [customer](/docs/customer.md), [vehicle](/docs/vehicle.md), [repair](docs/repair.md), [repair detail](docs/repair-detail.md)
+
 sibebeng - RESTful API untuk Manajemen Bengkel Mobil
 Deskripsi: Mengembangkan RESTful API untuk aplikasi manajemen bengkel mobil menggunakan Java dan Spring Boot. API ini dirancang untuk mengelola berbagai aspek operasional bengkel dengan efisien.
 
