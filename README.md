@@ -29,7 +29,7 @@ Hasil:
 
 ### Install di local
 
-req: jdk 21, spring boot 3.3.2
+req: jdk 21, maven, spring boot 3.3.2
 
 clone repository `git clone ...` via ssh atau http.
 
